@@ -243,7 +243,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
   - 공개 라우팅: `/api/(.*)` → api 서비스, 그 외 `/(.*)` → web 서비스. 현재 Next.js에는 자체 API 라우트가 없으므로 api가 `/api` 전체를 맡는다. api는 원래 경로(`/api/...`)를 그대로 받는데, FastAPI 라우트가 이미 `/api`로 시작하므로 경로를 바꿀 필요가 없다.
   - 웹과 API가 같은 도메인이 되므로 운영에서는 CORS가 필요 없다. `next.config.ts`의 `/api` rewrites와 `BIZDNA_API_URL`은 로컬 개발용으로만 남긴다.
   - 설정 파일은 `vercel.json`의 `services` 또는 권장 방식인 `vercel.ts`(`@vercel/config`)로 작성한다. 작성 전에 최신 문서를 확인한다.
-- **배포 상태 (2026-11-16)**: Vercel 프로젝트 `21111/mbti-for-enterprise`(프레임워크 프리셋 `services`, Root Directory는 저장소 루트)에 배포했다. 설정은 루트 `vercel.json`이다. 처음 계획한 배포 전 문제 3가지는 다음처럼 해결했다.
+- **배포 상태 (2026-11-16)**: 운영 주소 **https://mbti-for-enterprise-21111.vercel.app** (누구나 접속 가능). Vercel 프로젝트 `21111/mbti-for-enterprise`(프레임워크 프리셋 `services`, Root Directory는 저장소 루트)이며, GitHub `main`에 푸시하면 운영에 자동 배포된다. 배포 보호는 `prod_deployment_urls_and_all_previews`((Legacy) Standard Protection)로, 최신 운영 주소만 공개하고 미리보기·개별 배포 주소는 Vercel 팀원만 볼 수 있다. 사용자 도메인을 연결하면 Standard Protection으로 바꿔도 된다. 설정은 루트 `vercel.json`이다. 처음 계획한 배포 전 문제 3가지는 다음처럼 해결했다.
   1. **엔진 import 경로**: `engine/`을 `api/engine/`으로 옮겨 api 서비스 묶음 안에 넣었다. `api/bizdna_api/main.py`가 `sys.path`로 불러온다.
   2. **PDF 한글 폰트**: 나눔고딕(OFL, `api/fonts/`)을 저장소에 넣고 기본 폰트로 쓴다. 환경변수 `BIZDNA_FONT_*`로 바꿀 수 있다.
   3. **런타임 버전**: Python 3.12(`api/.python-version`), Node는 `web/package.json`의 `engines`가 22 이상이며 프로젝트 설정은 26.x다.

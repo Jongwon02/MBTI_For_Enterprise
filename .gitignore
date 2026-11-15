@@ -24,3 +24,6 @@ api/output/
 
 # 범위 밖 소상공인 MVP
 al/
+
+# Vercel CLI 연결 정보(프로젝트 ID 등)
+.vercel

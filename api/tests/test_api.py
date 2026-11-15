@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "api"))
-sys.path.insert(0, str(ROOT / "engine" / "tests"))
+sys.path.insert(0, str(ROOT / "api" / "engine" / "tests"))
 
 from bizdna_api.main import app  # noqa: E402
 from fixtures import as_survey, case  # noqa: E402

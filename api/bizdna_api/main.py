@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "engine"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "engine"))
 
 from bizdna import DiagnosticError, completeness, diagnose_survey, load_questions  # noqa: E402
 

@@ -7,7 +7,7 @@ import pytest
 from bizdna import diagnose
 from fixtures import case
 
-LEGACY = Path(__file__).resolve().parents[2] / "legacy" / "bizdna" / "engine.py"
+LEGACY = Path(__file__).resolve().parents[3] / "legacy" / "bizdna" / "engine.py"
 
 
 def test_case_a_greenfoodlab():

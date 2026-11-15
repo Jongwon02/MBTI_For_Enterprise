@@ -20,7 +20,7 @@
 | 없음 | FR-01 계정·역할, FR-12 서버 저장·이력·권한(응답은 브라우저 localStorage에만 저장), 업종별 문항 분기, FR-14 이후 전부, AI 서술(FR-20) |
 | 초안(사용자 확인 필요) | 성장단계 6문항의 단계별 문구, P01~P12 선택지, P01→goals·P09→flags 매핑 (`questions_v1.json`의 `draft: true`). 기본진단 범위(= DNA+단계+P01/P09)도 임시 결정 |
 
-- 실행: `run_dev.bat`(API 8000 + 웹 3000). 테스트: `.venv/Scripts/python -m pytest engine api`, `web`에서 `npx tsc --noEmit && npm run lint && npm run build`. 자세한 내용은 `README.md`.
+- 실행: `run_dev.bat`(API 8000 + 웹 3000). 테스트: `.venv/Scripts/python -m pytest api`, `web`에서 `npx tsc --noEmit && npm run lint && npm run build`. 자세한 내용은 `README.md`.
 - 참고 문서: `docs/question-bank.md`(100문항 원문), `docs/engine-v1-reference.md`(1.0 계산 규칙), `docs/design-system.md`(디자인). 출처는 ChatGPT 대화 공유 링크(https://chatgpt.com/share/6af7f207-27bc-83ee-a43b-b5e628d312d2).
 - `legacy/`: 1.0·2.0 시제품 원본, 실행 검증 완료(`legacy/README.md`). 수정하지 않는다. 엔진 회귀 테스트가 이 원본과 전략 점수까지 비교한다.
 - `prototype/home.html`: 승인된 메인 디자인 시안. 실제 메인은 `web/app/page.tsx`로 옮겼다.
@@ -30,7 +30,7 @@
 
 | 영역 | 선택 | 상태 |
 | --- | --- | --- |
-| 진단엔진 | Python 3.12 순수 함수 패키지 `engine/bizdna` | 사용 중 |
+| 진단엔진 | Python 3.12 순수 함수 패키지 `api/engine/bizdna` | 사용 중 |
 | API | FastAPI + Pydantic v2 (`api/bizdna_api`) | 사용 중 |
 | 프런트엔드 | **Next.js 16**(App Router, cacheComponents) + React 19 + TypeScript + Tailwind 4 | 사용 중 |
 | 차트 | Recharts (역량 레이더) | 사용 중 |
@@ -45,9 +45,9 @@
 ### 디렉터리 구조
 
 ```
-engine/bizdna/      engine.py(진단·전략), survey.py(설문→엔진 입력, 완결성), config.py
+api/engine/bizdna/  engine.py(진단·전략), survey.py(설문→엔진 입력, 완결성), config.py
   config/           model_v1.json(가중치·임계값·규칙), questions_v1.json(문항·초안 문항)
-engine/tests/       fixtures.py(기준 사례), test_regression.py(legacy 대조), test_engine.py
+api/engine/tests/   fixtures.py(기준 사례), test_regression.py(legacy 대조), test_engine.py
 api/bizdna_api/     main.py(/api/questions, /api/diagnose, /api/completeness, /api/report), report.py(PDF)
 api/tests/
 web/app/            page.tsx(메인), diagnosis/page.tsx(설문), diagnosis/result/page.tsx(결과), styles/*.css
@@ -56,12 +56,12 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 ```
 
 - 웹은 `/api/*`를 `next.config.ts`의 rewrites로 FastAPI(`BIZDNA_API_URL`, 기본 127.0.0.1:8000)에 넘긴다.
-- 문항·가중치의 정본은 `engine/bizdna/config/`다. 웹은 문항을 API에서 받는다. 예외로 메인 화면의 16유형 목록(`web/lib/content.ts`)은 복사본이므로 유형명을 바꾸면 함께 고친다.
+- 문항·가중치의 정본은 `api/engine/bizdna/config/`다. 웹은 문항을 API에서 받는다. 예외로 메인 화면의 16유형 목록(`web/lib/content.ts`)은 복사본이므로 유형명을 바꾸면 함께 고친다.
 - 설문 단계 순서를 바꾸면 `web/lib/storage.ts`의 `FIRST_FULL_STEP`도 맞춘다.
 
 ## 4. 진단모형 핵심 규칙 (PRD 8장 요약 — 구현 시 반드시 지킬 것)
 
-모든 가중치·기준점·유형은 **시범검증 전 가설값**이다. 코드에 하드코딩하지 말고 `engine/config/`의 버전 관리되는 설정으로 둔다.
+모든 가중치·기준점·유형은 **시범검증 전 가설값**이다. 코드에 하드코딩하지 말고 `api/engine/bizdna/config/`의 버전 관리되는 설정으로 둔다.
 
 **기준 구현은 1.0 엔진이다.** 새 엔진은 `docs/engine-v1-reference.md`의 계산을 먼저 그대로 재현해 회귀 사례를 통과시킨 다음, PRD와 다른 점(아래 ⚠ 표시)을 하나씩 고친다. 고칠 때마다 설정 버전을 올리고 회귀 기대값이 바뀌면 이유를 기록한다.
 
@@ -70,7 +70,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 - **코드 체계**: 1.0 엔진은 `answers.dna.D01~D24`와 `answers.competence.A01~H08`로 네임스페이스를 나눠 충돌을 피한다(재무는 `D01~D08`, 설계안 표기는 D25~D32). 입력 JSON은 이 구조를 유지한다. DB 문항 마스터에서는 `(section, code)` 복합키로 고유하게 관리한다.
 - 척도 1~5점. 역방향 문항은 `6 - 원점수`. 현재 DNA 24문항은 모두 오른쪽이 A 성향이라 역문항이 없다.
 - **미응답은 0점이 아니라 결측(None)**. 결측이 있는 영역 점수는 응답 문항 기준으로 환산하고 결측 비율을 결과에 함께 기록한다. (구현됨: 1.0은 미응답을 오류로 거부했으나 현재 엔진은 결측으로 기록. 영역 전체가 결측이면 그 영역을 빼고 가중치를 다시 나눈다. 성장단계는 6지표가 모두 있어야 판정한다.)
-- 성장단계 6지표 문항, P01 목표 선택지→엔진 goals, P09 성장장애→위험 flags 매핑은 **초안**으로 만들어 `questions_v1.json`에 `draft: true`로 표시했다(`engine/bizdna/survey.py`가 변환). P09의 `talent`, `sales_channel`은 엔진 플래그가 없어 전략점수에 반영되지 않는다. 사용자가 확정하기 전까지 이 초안 표시를 유지한다.
+- 성장단계 6지표 문항, P01 목표 선택지→엔진 goals, P09 성장장애→위험 flags 매핑은 **초안**으로 만들어 `questions_v1.json`에 `draft: true`로 표시했다(`api/engine/bizdna/survey.py`가 변환). P09의 `talent`, `sales_channel`은 엔진 플래그가 없어 전략점수에 반영되지 않는다. 사용자가 확정하기 전까지 이 초안 표시를 유지한다.
 
 ### 4.2 DNA 유형 (4축 → 16종)
 - 축: D1 G/S(성장확장/안정내실), D2 I/E(혁신차별/효율경쟁), D3 N/C(시장개척/기존시장집중), D4 P/O(조직체계/창업자주도).
@@ -162,7 +162,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 
 ## 10. 작업 규칙
 
-- 엔진 로직 변경 → `engine/tests` 전체와 회귀 사례 통과 확인 후 완료 보고.
+- 엔진 로직 변경 → `api/engine/tests` 전체와 회귀 사례 통과 확인 후 완료 보고.
 - 가중치·임계값·문항 변경 → 설정 파일 버전을 올리고, 기존 진단 회차는 당시 버전으로 재현 가능해야 한다.
 - 결측·경계값(40, 60, 등급 경계) 처리에 단위 테스트를 반드시 둔다.
 - 사용자 대면 문구는 "창업자" 대신 상황에 따라 "경영자"를 검토한다(성숙 기업 적합성 리스크).
@@ -186,7 +186,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 ```
 
 - **역할 분담**: 브라우저는 Supabase를 **로그인에만** 쓴다. 기업·진단 데이터의 읽기·쓰기는 모두 FastAPI를 거친다. 권한 검사(6장)와 엔진 실행을 한곳에 모으기 위해서다. 브라우저에서 Supabase 테이블을 직접 조회하는 기능은 만들지 않는다.
-- **엔진 위치**: 진단엔진(`engine/`)은 그대로 API 안에서 실행한다. DB에 들어가는 것은 응답과 결과뿐이다.
+- **엔진 위치**: 진단엔진(`api/engine/`)은 그대로 API 안에서 실행한다. DB에 들어가는 것은 응답과 결과뿐이다.
 
 ### 11.2 Supabase 설정
 
@@ -234,7 +234,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 | `audit_logs` | 누가·언제·무엇을 조회·수정했는지 | 민감 데이터 접근 기록 |
 | (P1) `action_items`, `kpi_records`, `evidence_files` | 90일 실행과제, KPI 실적, 증빙 | |
 
-- 문항과 가중치의 정본은 지금처럼 `engine/bizdna/config/*.json`이다. 관리자 화면에서 바꾸는 기능(FR-18)이 생길 때 DB로 옮길지 정한다.
+- 문항과 가중치의 정본은 지금처럼 `api/engine/bizdna/config/*.json`이다. 관리자 화면에서 바꾸는 기능(FR-18)이 생길 때 DB로 옮길지 정한다.
 - 암호화: Supabase는 저장 데이터와 전송 구간을 기본으로 암호화한다. 매출·영업이익률 같은 필드를 컬럼 단위로 추가 암호화할지는 9장 미결정 항목이다.
 
 ### 11.5 Vercel 배포
@@ -243,10 +243,13 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
   - 공개 라우팅: `/api/(.*)` → api 서비스, 그 외 `/(.*)` → web 서비스. 현재 Next.js에는 자체 API 라우트가 없으므로 api가 `/api` 전체를 맡는다. api는 원래 경로(`/api/...`)를 그대로 받는데, FastAPI 라우트가 이미 `/api`로 시작하므로 경로를 바꿀 필요가 없다.
   - 웹과 API가 같은 도메인이 되므로 운영에서는 CORS가 필요 없다. `next.config.ts`의 `/api` rewrites와 `BIZDNA_API_URL`은 로컬 개발용으로만 남긴다.
   - 설정 파일은 `vercel.json`의 `services` 또는 권장 방식인 `vercel.ts`(`@vercel/config`)로 작성한다. 작성 전에 최신 문서를 확인한다.
-- **배포 전에 해결할 문제**:
-  1. **엔진 import 경로**: api는 `sys.path`로 저장소 루트의 `engine/`을 불러온다. 서비스 루트를 `api/`로 잡으면 `engine/`이 배포 묶음에 빠질 수 있다. `engine`을 설치 가능한 패키지(`pyproject.toml`)로 만들어 api 의존성에 넣거나, 서비스 루트와 엔트리포인트를 조정한다. 미리보기 배포로 확인한다.
-  2. **PDF 한글 폰트**: Vercel의 리눅스 환경에는 맑은 고딕·나눔 폰트가 없다. 오픈 라이선스 한글 TTF(예: 나눔고딕, Noto Sans KR)를 `api/fonts/`에 넣고 `BIZDNA_FONT_REGULAR`·`BIZDNA_FONT_BOLD`로 지정한다.
-  3. **런타임 버전**: Python은 3.12를 쓴다. Node.js 20은 2026-10-01에 지원이 끝났으므로 Node 24(현재 기본)로 맞추고 README의 "Node.js 20 이상"을 고친다.
+- **배포 상태 (2026-11-16)**: Vercel 프로젝트 `21111/mbti-for-enterprise`(프레임워크 프리셋 `services`, Root Directory는 저장소 루트)에 배포했다. 설정은 루트 `vercel.json`이다. 처음 계획한 배포 전 문제 3가지는 다음처럼 해결했다.
+  1. **엔진 import 경로**: `engine/`을 `api/engine/`으로 옮겨 api 서비스 묶음 안에 넣었다. `api/bizdna_api/main.py`가 `sys.path`로 불러온다.
+  2. **PDF 한글 폰트**: 나눔고딕(OFL, `api/fonts/`)을 저장소에 넣고 기본 폰트로 쓴다. 환경변수 `BIZDNA_FONT_*`로 바꿀 수 있다.
+  3. **런타임 버전**: Python 3.12(`api/.python-version`), Node는 `web/package.json`의 `engines`가 22 이상이며 프로젝트 설정은 26.x다.
+- **배포에 올리지 않는 파일**: `.vercelignore`(CLI 배포 시 legacy·prototype·docs·캡처·로컬 비밀값 제외). 운영 의존성은 `api/requirements.txt`, 테스트 도구는 `api/requirements-dev.txt`에 둔다.
+- **배포 확인 방법**: 미리보기는 Vercel 인증으로 보호되므로 `vercel curl <경로> --deployment <URL>`로 확인한다. Git Bash에서는 `MSYS_NO_PATHCONV=1`을 붙여야 `/api/...` 경로가 Windows 경로로 바뀌지 않는다.
+- **Vercel CLI 주의**: 환경변수 삭제(`vercel env rm`)는 사람의 승인이 필요하다. 값만 바꿀 때는 `vercel env update <NAME> --environment production --value ... --yes`를 쓴다. `vercel link`는 루트에 `.env.local`(OIDC 토큰)을 만들고 `.gitignore`에 `.env*`를 덧붙이는데, 그 줄은 `.env.example`까지 막으므로 지운다.
 - **환경변수**: Vercel 대시보드에 Production·Preview·Development 별로 등록한다. Supabase 연동 변수는 자동 등록되고, 그 외에 `BIZDNA_ENV=production`, 폰트 경로, (향후) AI 키를 등록한다. 미리보기 배포가 운영 DB를 건드리지 않도록 Preview에는 별도 Supabase 프로젝트나 브랜치를 연결한다.
 - **제한**: 함수 요청·응답 본문은 최대 4.5MB다(현재 PDF는 약 0.15MB). 함수 기본 실행시간 제한은 300초다.
 - **미리보기 보호**: 미리보기 배포는 Vercel Deployment Protection으로 팀원만 보게 한다.

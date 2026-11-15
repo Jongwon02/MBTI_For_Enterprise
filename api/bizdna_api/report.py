@@ -2,7 +2,7 @@
 
 legacy/BizDNA_Integrated/reports.py를 옮겼다. 바뀐 점:
 - 이미 계산된 엔진 결과를 받는다(엔진을 다시 돌리지 않음).
-- 폰트를 운영체제별로 찾는다(BIZDNA_FONT_REGULAR/BOLD 환경변수 → Windows 맑은 고딕 → Linux 나눔).
+- 폰트: BIZDNA_FONT_REGULAR/BOLD 환경변수 → 저장소에 포함한 api/fonts/ 나눔고딕 → Windows 맑은 고딕 → Linux 나눔 순으로 찾는다.
 - 색상을 웹 디자인 토큰(docs/design-system.md)에 맞췄다.
 - AI 서술은 아직 붙이지 않는다(FR-20, P2).
 """
@@ -32,8 +32,10 @@ CHIP = colors.HexColor("#E8F3FF")
 GRAY = colors.HexColor("#86868B")
 LINE = colors.HexColor("#E3E6EA")
 
+BUNDLED_FONTS = Path(__file__).resolve().parents[1] / "fonts"  # 나눔고딕(OFL), 배포 서버에도 같이 올라간다
 FONT_CANDIDATES = [
     (os.environ.get("BIZDNA_FONT_REGULAR"), os.environ.get("BIZDNA_FONT_BOLD")),
+    (str(BUNDLED_FONTS / "NanumGothic-Regular.ttf"), str(BUNDLED_FONTS / "NanumGothic-Bold.ttf")),
     ("C:/Windows/Fonts/malgun.ttf", "C:/Windows/Fonts/malgunbd.ttf"),
     ("/usr/share/fonts/truetype/nanum/NanumSquareR.ttf", "/usr/share/fonts/truetype/nanum/NanumSquareB.ttf"),
     ("/usr/share/fonts/truetype/nanum/NanumGothic.ttf", "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"),

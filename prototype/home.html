@@ -1,0 +1,830 @@
+<title>Biz-DNA 메인 시안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* Layout: 비스타형 풀스크린 섹션(검정 히어로 → 밝은 철학 → 연파랑 진단구성 → 검정 모형 → 회색 16유형 → 흰 시작/문의 → 푸터), 데스크톱만 스냅.
+   단일 테마로 의도함: 밝은 섹션과 검정 섹션을 번갈아 쓰는 비스타 구성을 그대로 유지한다. */
+:root {
+  color-scheme: light;
+  --ink: #1d1d1f;
+  --blue: #0071e3;
+  --blue-deep: #0c4f9a;
+  --blue-soft: #8fd4ff;
+  --gray-bg: #f5f5f7;
+  --gray-text: #86868b;
+  --black: #020202;
+  --navy: #0a1628;
+  --footer: #0f0f11;
+  --section-light: #f9f9f9;
+  --section-mist: #f7f7f8;
+  --white: #ffffff;
+  --chip-bg: #e8f3ff;
+  --slate: #475569;
+  --slate-dark: #334155;
+  --line: rgba(0, 0, 0, .08);
+  --font: "Pretendard", "Noto Sans KR", system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (min-width: 901px) { html { scroll-snap-type: y proximity; } }
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  word-break: keep-all;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- 공통 ---------- */
+section {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 24px 80px;
+  scroll-snap-align: start;
+}
+@media (min-width: 901px) {
+  .full { min-height: 100svh; }
+}
+.container { position: relative; z-index: 2; width: min(1280px, 100%); margin: 0 auto; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  margin-bottom: 24px;
+  color: var(--blue);
+  font-size: 15px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+}
+.eyebrow::before { content: ""; width: 34px; height: 1px; background: var(--blue); }
+.accent { color: var(--blue); }
+
+/* ---------- 헤더 ---------- */
+.site-header {
+  position: fixed; inset: 0 0 auto; z-index: 1000;
+  display: flex; justify-content: center;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px 0;
+  pointer-events: none;
+  transition: padding .5s var(--ease);
+}
+.header-shell {
+  pointer-events: auto;
+  width: min(1280px, calc(100% - 24px));
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 0;
+  color: var(--white);
+  border: 1px solid transparent;
+  transition: all .5s var(--ease);
+}
+.site-header.scrolled { padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.site-header.scrolled .header-shell {
+  padding: 10px 12px 10px 22px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, .72);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-color: rgba(255, 255, 255, .35);
+  border-radius: 999px;
+  box-shadow: 0 8px 32px -10px rgba(0, 0, 0, .16);
+}
+.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 900; font-size: 19px; letter-spacing: -.03em; }
+.logo svg { width: 30px; height: 30px; }
+.logo small { font-size: 10px; font-weight: 700; letter-spacing: .12em; opacity: .6; text-transform: uppercase; }
+.header-nav { display: flex; align-items: center; gap: 30px; }
+.nav-link {
+  position: relative; display: inline-flex; align-items: center; height: 44px; padding: 0 4px;
+  font-size: 14px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .92;
+  transition: color .25s ease;
+}
+.nav-link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 6px; height: 2px; border-radius: 999px;
+  background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .26s var(--ease);
+}
+.nav-link:hover { color: var(--blue); opacity: 1; }
+.nav-link:hover::after { transform: scaleX(1); }
+.header-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 999px;
+  background: var(--white); color: var(--ink);
+  font-size: 13px; font-weight: 800;
+  transition: background .25s ease, color .25s ease;
+}
+.site-header.scrolled .header-cta { background: var(--ink); color: var(--white); }
+.header-cta:hover, .site-header.scrolled .header-cta:hover { background: var(--blue); color: var(--white); }
+.menu-toggle {
+  display: none; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .08); color: inherit; cursor: pointer;
+}
+.site-header.scrolled .menu-toggle { border-color: var(--line); background: rgba(255, 255, 255, .7); }
+.menu-toggle span { display: block; width: 16px; height: 2px; margin: 4px auto; background: currentColor; border-radius: 2px; }
+.mobile-menu {
+  pointer-events: auto;
+  position: absolute; top: calc(84px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px;
+  padding: 10px; border-radius: 22px;
+  background: rgba(255, 255, 255, .96); color: var(--ink);
+  box-shadow: 0 24px 48px -18px rgba(0, 0, 0, .35);
+  display: grid; gap: 4px;
+}
+.mobile-menu a { padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; display: flex; justify-content: space-between; }
+.mobile-menu a span { color: var(--gray-text); font-weight: 600; font-size: 13px; }
+.mobile-menu a:hover { background: var(--gray-bg); }
+.mobile-menu .mobile-cta { background: var(--blue); color: var(--white); justify-content: center; }
+.mobile-menu .mobile-cta:hover { background: var(--blue-deep); }
+
+/* ---------- 점 내비 ---------- */
+.dot-nav {
+  position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 900;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.dot-nav a {
+  position: relative; display: block; width: 11px; height: 11px; border-radius: 50%;
+  background: rgba(255, 255, 255, .28);
+  transition: transform .25s ease, background .25s ease;
+}
+.dot-nav.on-light a { background: rgba(0, 0, 0, .18); }
+.dot-nav a.active { background: var(--blue); transform: scale(1.55); }
+.dot-nav a span {
+  position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+  white-space: nowrap; font-size: 12px; font-weight: 600;
+  color: rgba(255, 255, 255, .75); opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+.dot-nav.on-light a span { color: rgba(0, 0, 0, .55); }
+.dot-nav a:hover span, .dot-nav a:focus-visible span { opacity: 1; }
+
+/* ---------- 1. 히어로 ---------- */
+.hero { background: var(--black); color: var(--white); }
+.hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 78% 45%, rgba(0, 113, 227, .22), transparent 55%),
+    linear-gradient(180deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, .55));
+}
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: 48px; align-items: center; }
+.hero h1 {
+  font-size: clamp(2.9rem, 7vw, 5.6rem); font-weight: 800; letter-spacing: -.055em; line-height: 1.07;
+  margin-bottom: 28px;
+}
+.hero p.lead {
+  max-width: 760px; color: rgba(255, 255, 255, .82);
+  font-size: clamp(1.05rem, 2.2vw, 1.4rem); line-height: 1.65;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 26px;
+  border-radius: 999px; font-size: 15px; font-weight: 800;
+  transition: background .25s ease, color .25s ease, border-color .25s ease, transform .25s ease;
+}
+.btn-primary { background: var(--blue); color: var(--white); }
+.btn-primary:hover { background: #0068d9; transform: translateY(-2px); }
+.btn-ghost { border: 1px solid rgba(255, 255, 255, .35); color: var(--white); }
+.btn-ghost:hover { border-color: var(--white); background: rgba(255, 255, 255, .08); }
+.btn-dark { background: var(--ink); color: var(--white); }
+.btn-dark:hover { background: var(--blue); }
+.btn-line { border: 1px solid rgba(0, 0, 0, .14); color: var(--ink); background: var(--white); }
+.btn-line:hover { border-color: var(--blue); color: var(--blue); }
+
+.sample-card {
+  justify-self: end; width: min(360px, 100%);
+  padding: 26px; border-radius: 30px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.sample-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.sample-head small { color: rgba(255, 255, 255, .55); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.tag-example { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: rgba(143, 212, 255, .16); color: var(--blue-soft); }
+.sample-code { font-size: 3.4rem; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.sample-name { margin-top: 6px; color: rgba(255, 255, 255, .75); font-weight: 600; }
+.sample-rows { display: grid; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .1); }
+.sample-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.sample-row span:first-child { color: rgba(255, 255, 255, .55); }
+.sample-row strong { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.axis-bars { display: grid; gap: 9px; margin-top: 18px; }
+.axis { display: grid; grid-template-columns: 18px 1fr 18px; gap: 8px; align-items: center; font-size: 12px; font-weight: 800; color: rgba(255, 255, 255, .5); }
+.axis b { color: var(--white); }
+.axis-track { position: relative; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .1); }
+.axis-track::before { content: ""; position: absolute; left: 40%; width: 20%; top: 0; bottom: 0; background: rgba(255, 255, 255, .08); }
+.axis-track i { position: absolute; top: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--blue); transform: translateY(-50%); box-shadow: 0 0 0 4px rgba(0, 113, 227, .25); }
+
+.scroll-indicator {
+  position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.scroll-indicator small { color: rgba(255, 255, 255, .45); font-size: 10px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
+.scroll-line { position: relative; width: 1px; height: 58px; overflow: hidden; background: rgba(255, 255, 255, .16); }
+.scroll-line::after { content: ""; position: absolute; left: 0; right: 0; top: -50%; height: 50%; background: var(--white); animation: scrollLine 1.6s linear infinite; }
+@keyframes scrollLine { to { top: 100%; } }
+
+.hero-copy > * { animation: enterUp .9s var(--ease) both; }
+.hero-copy > *:nth-child(2) { animation-delay: .08s; }
+.hero-copy > *:nth-child(3) { animation-delay: .16s; }
+.hero-copy > *:nth-child(4) { animation-delay: .24s; }
+.sample-card { animation: enterUp 1.1s var(--ease) .3s both; }
+@keyframes enterUp { from { transform: translateY(28px); } to { transform: none; } }
+
+/* ---------- 2. Why ---------- */
+.why { background: var(--section-light); }
+.why-visual {
+  position: absolute; inset: 0 0 0 auto; width: 55%; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--section-light) 0%, rgba(249, 249, 249, .2) 45%, rgba(249, 249, 249, 0) 100%),
+    repeating-radial-gradient(circle at 85% 55%, rgba(0, 113, 227, .10) 0 1px, transparent 1px 34px),
+    radial-gradient(circle at 85% 55%, rgba(0, 113, 227, .16), transparent 60%);
+}
+.why h2 {
+  max-width: 1000px; margin-bottom: 32px;
+  font-size: clamp(2.3rem, 5vw, 4rem); font-weight: 800; letter-spacing: -.05em; line-height: 1.18;
+}
+.why p.lead { max-width: 780px; color: var(--gray-text); font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.72; }
+.questions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 56px; max-width: 1100px; }
+.question {
+  padding: 22px 22px 24px; border-radius: 22px; background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px -18px rgba(16, 24, 40, .25);
+}
+.question small { display: block; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .14em; margin-bottom: 12px; }
+.question h3 { font-size: 1.12rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 8px; }
+.question p { color: var(--slate); font-size: .93rem; line-height: 1.6; }
+
+/* ---------- 3. 진단 구성 ---------- */
+.diagnosis { background: linear-gradient(180deg, #f7fbff 0%, #eaf4ff 55%, #f7fbff 100%); }
+.biz-top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
+.biz-top h2 { font-size: clamp(2.2rem, 4.4vw, 3.4rem); font-weight: 800; letter-spacing: -.05em; line-height: 1.12; margin-bottom: 16px; }
+.biz-top p { max-width: 640px; color: var(--slate); font-size: 1.05rem; line-height: 1.7; }
+.process {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  padding: 12px 18px; border-radius: 999px; background: var(--white);
+  border: 1px solid rgba(0, 113, 227, .12); box-shadow: 0 8px 24px -14px rgba(16, 24, 40, .25);
+  font-size: 13px; font-weight: 700; color: var(--slate-dark);
+}
+.process i { font-style: normal; color: var(--blue); }
+.process strong { margin-left: 6px; color: var(--ink); font-weight: 800; }
+.cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; min-width: 0;
+  padding: 30px 22px 26px; border-radius: 30px; background: var(--white);
+  border: 1px solid rgba(0, 113, 227, .08);
+  box-shadow: 0 18px 40px rgba(16, 24, 40, .08);
+  transition: box-shadow .35s ease, border-color .35s ease, transform .35s ease;
+}
+.card::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, rgba(0, 113, 227, 0), rgba(0, 113, 227, .9), rgba(0, 113, 227, 0)); }
+.card:hover { transform: translateY(-6px); border-color: rgba(0, 113, 227, .18); box-shadow: 0 28px 56px rgba(16, 24, 40, .12); }
+.card-num { position: absolute; right: 18px; top: 14px; font-size: 3.4rem; font-weight: 900; letter-spacing: -.04em; color: rgba(0, 113, 227, .07); transition: color .35s ease; }
+.card:hover .card-num { color: rgba(0, 113, 227, .14); }
+.card-icon { width: 42px; height: 42px; margin-bottom: 20px; color: var(--blue); }
+.card h3 { font-size: 1.28rem; font-weight: 800; letter-spacing: -.03em; }
+.card .eng { margin: 4px 0 18px; color: var(--gray-text); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.card li { position: relative; padding-left: 14px; color: var(--slate); font-size: .9rem; line-height: 1.5; }
+.card li::before { content: ""; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+
+/* ---------- 4. 모형 ---------- */
+.model { background: var(--black); color: var(--white); }
+.model::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 15% 80%, rgba(0, 113, 227, .16), transparent 45%);
+}
+.impact-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 72px; align-items: center; }
+.model h2 { font-size: clamp(2.6rem, 5vw, 4.4rem); font-weight: 800; letter-spacing: -.06em; line-height: 1.08; margin-bottom: 26px; }
+.model p { max-width: 640px; color: var(--gray-text); font-size: clamp(1.02rem, 1.8vw, 1.22rem); line-height: 1.75; }
+.model .note { margin-top: 22px; font-size: .88rem; color: rgba(255, 255, 255, .45); }
+.stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.stat-box {
+  padding: 40px 22px; border-radius: 30px; text-align: center;
+  background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1);
+  transition: background .35s ease, border-color .35s ease, transform .35s ease;
+}
+.stat-box:hover { background: rgba(255, 255, 255, .09); border-color: rgba(0, 113, 227, .8); transform: translateY(-8px); }
+.stat-box h4 { color: var(--gray-text); font-size: .92rem; font-weight: 600; margin-bottom: 14px; }
+.stat-box .num { font-size: clamp(2.4rem, 4vw, 3.55rem); font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.stat-box .num span { margin-left: 4px; color: var(--blue); font-size: .44em; }
+.stat-box small { display: block; margin-top: 10px; color: rgba(255, 255, 255, .45); font-size: .82rem; }
+
+/* ---------- 5. 16유형 ---------- */
+.types { background: var(--section-mist); }
+.types::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(0, 113, 227, .12) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 30%, rgba(0, 113, 227, .10) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 40%, rgba(0, 113, 227, .08) 0 2px, transparent 3px);
+  background-size: 180px 180px, 240px 240px, 300px 300px;
+}
+.types-intro { display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: end; margin-bottom: 44px; }
+.types-intro h2 { font-size: clamp(2.5rem, 4.6vw, 4rem); font-weight: 800; letter-spacing: -.05em; line-height: 1.1; }
+.types-intro p { color: var(--gray-text); font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.72; max-width: 680px; }
+.axis-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.axis-legend span {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px;
+  background: var(--white); border: 1px solid rgba(0, 113, 227, .14); color: #17365f; font-size: .8rem; font-weight: 700;
+}
+.axis-legend b { color: var(--blue); margin-right: 4px; }
+.marquee {
+  display: grid; gap: 16px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.track { display: flex; gap: 16px; width: max-content; animation: marquee 70s linear infinite; }
+.track.reverse { animation-name: marqueeReverse; }
+.marquee:hover .track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes marqueeReverse { from { transform: translateX(-50%); } to { transform: none; } }
+.type-card {
+  flex: 0 0 auto; width: 236px; padding: 20px 22px; border-radius: 20px;
+  background: var(--white); border: 1px solid rgba(0, 0, 0, .06);
+  box-shadow: 0 8px 28px -12px rgba(0, 0, 0, .12);
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.type-card:hover { border-color: rgba(0, 113, 227, .35); box-shadow: 0 16px 32px -14px rgba(0, 113, 227, .35); }
+.type-code { display: flex; gap: 2px; font-size: 1.9rem; font-weight: 900; letter-spacing: -.02em; line-height: 1; }
+.type-code span:nth-child(odd) { color: var(--ink); }
+.type-code span:nth-child(even) { color: var(--blue); }
+.type-name { margin-top: 10px; font-weight: 800; font-size: 1rem; letter-spacing: -.02em; }
+.type-strategy { margin-top: 10px; display: inline-flex; min-height: 26px; align-items: center; padding: 0 10px; border-radius: 999px; background: var(--chip-bg); color: var(--blue-deep); font-size: .76rem; font-weight: 800; }
+
+/* ---------- 6. 시작·문의 ---------- */
+.start { background: var(--white); }
+.start h2 { font-size: clamp(2.5rem, 4.6vw, 4rem); font-weight: 800; letter-spacing: -.05em; }
+.contact-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, .85fr); gap: 28px; margin-top: 32px; }
+.contact-left { display: grid; gap: 20px; }
+.office-card {
+  display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 26px; align-items: center;
+  padding: 30px; border-radius: 30px; background: var(--gray-bg);
+}
+.office-mark {
+  aspect-ratio: 1; max-width: 100%; border-radius: 24px; display: grid; place-items: center;
+  background: linear-gradient(140deg, var(--navy), #1a3a6a); color: var(--white);
+}
+.office-mark svg { width: 54%; height: 54%; }
+.office-card h3 { font-size: 1.45rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: 8px; }
+.office-card p { color: var(--slate); line-height: 1.65; font-size: .96rem; }
+.office-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 18px; }
+.office-meta span { display: inline-flex; align-items: center; min-height: 28px; padding: 0 11px; border-radius: 999px; background: var(--chip-bg); color: var(--blue-deep); font-size: .78rem; font-weight: 800; }
+.contact-panel {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+  padding: 38px 34px; border-radius: 34px; color: var(--white);
+  background: linear-gradient(180deg, #111, #1b1b1f);
+  box-shadow: 0 30px 60px -34px rgba(0, 0, 0, .32);
+}
+.contact-panel h3 { font-size: clamp(1.9rem, 2.4vw, 2.3rem); font-weight: 800; letter-spacing: -.04em; }
+.contact-panel .copy { margin-top: 12px; color: rgba(255, 255, 255, .7); line-height: 1.7; }
+.contact-list { display: grid; gap: 18px; }
+.contact-item small { display: block; margin-bottom: 6px; color: rgba(255, 255, 255, .45); font-size: .82rem; letter-spacing: .14em; text-transform: uppercase; }
+.contact-item p { font-size: 1.1rem; line-height: 1.6; }
+.contact-item p.muted { color: rgba(255, 255, 255, .55); font-size: .98rem; }
+.contact-note { padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .08); color: rgba(255, 255, 255, .55); font-size: .9rem; line-height: 1.7; }
+
+/* ---------- 푸터 ---------- */
+.site-footer { background: var(--footer); color: rgba(255, 255, 255, .76); padding: 56px 24px calc(40px + env(safe-area-inset-bottom, 0px)); }
+.footer-shell { width: min(1280px, 100%); margin: 0 auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px 44px; }
+.footer-brand { display: flex; align-items: center; gap: 12px; color: var(--white); font-size: 1.3rem; font-weight: 900; margin-bottom: 14px; }
+.footer-brand svg { width: 40px; height: 40px; }
+.footer-copy { color: rgba(255, 255, 255, .56); font-size: .94rem; line-height: 1.8; max-width: 460px; }
+.footer-meta { display: grid; gap: 8px; align-content: start; font-size: .95rem; line-height: 1.7; }
+.footer-meta strong { color: var(--white); font-weight: 700; margin-right: 6px; }
+.footer-bottom { grid-column: 1 / -1; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .08); color: rgba(255, 255, 255, .4); font-size: .86rem; }
+
+/* ---------- 반응형 ---------- */
+@media (max-width: 1180px) {
+  .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .cards .card { grid-column: span 2; }
+  .cards .card:nth-child(4), .cards .card:nth-child(5) { grid-column: span 3; }
+  .questions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1100px) {
+  .header-nav { gap: 18px; }
+}
+@media (max-width: 900px) {
+  section { padding: 104px 20px 64px; }
+  .header-nav, .header-cta { display: none; }
+  .menu-toggle { display: block; }
+  .site-header { padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 0; }
+  .header-shell { width: 100%; }
+  .site-header.scrolled .header-shell { padding: 8px 8px 8px 18px; }
+  .dot-nav { right: 10px; gap: 12px; }
+  .dot-nav a span { display: none; }
+  .hero { min-height: 92svh; }
+  .hero-grid, .impact-grid, .types-intro, .contact-grid, .footer-shell { grid-template-columns: 1fr; }
+  .impact-grid { gap: 40px; }
+  .sample-card { justify-self: start; }
+  .why-visual { width: 100%; opacity: .5; }
+}
+@media (max-width: 640px) {
+  section { padding: 96px 16px 56px; }
+  .eyebrow { font-size: 13px; letter-spacing: .14em; }
+  .cards, .questions { grid-template-columns: 1fr; }
+  .cards .card, .cards .card:nth-child(4), .cards .card:nth-child(5) { grid-column: auto; }
+  .process { border-radius: 22px; }
+  .office-card { grid-template-columns: 1fr; }
+  .office-mark { width: 72px; }
+  .stat-box { padding: 30px 14px; }
+  .contact-panel { padding: 30px 24px; }
+  .scroll-indicator { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .marquee { overflow-x: auto; }
+}
+</style>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-shell">
+    <a class="logo" href="#home" aria-label="Biz-DNA 처음으로">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M9 3c0 7 14 7 14 13S9 22 9 29" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M23 3c0 7-14 7-14 13s14 6 14 13" stroke="#0071e3" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M11 7.5h10M11 24.5h10M13.5 12h5M13.5 20h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>
+      </svg>
+      <span>Biz-DNA <small>가칭</small></span>
+    </a>
+    <nav class="header-nav" aria-label="주 메뉴">
+      <a class="nav-link" href="#why">About</a>
+      <a class="nav-link" href="#types">DNA Types</a>
+      <a class="nav-link" href="#diagnosis">Diagnosis</a>
+      <a class="nav-link" href="#model">Report</a>
+      <a class="nav-link" href="#start">Notice</a>
+    </nav>
+    <a class="header-cta" href="#start">진단 시작 <span aria-hidden="true">→</span></a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu" aria-label="모바일 메뉴" hidden>
+    <a href="#why">About <span>소개·진단 방법</span></a>
+    <a href="#types">DNA Types <span>16개 유형</span></a>
+    <a href="#diagnosis">Diagnosis <span>진단 구성</span></a>
+    <a href="#model">Report <span>결과·보고서</span></a>
+    <a href="#start">Notice <span>공지·문의</span></a>
+    <a class="mobile-cta" href="#start">진단 시작</a>
+  </nav>
+</header>
+
+<nav class="dot-nav" id="dotNav" aria-label="섹션 이동">
+  <a href="#home" data-target="home" aria-label="처음"><span>Home</span></a>
+  <a href="#why" data-target="why" aria-label="왜 Biz-DNA인가"><span>Why Biz-DNA</span></a>
+  <a href="#diagnosis" data-target="diagnosis" aria-label="진단 구성"><span>Diagnosis</span></a>
+  <a href="#model" data-target="model" aria-label="진단모형"><span>Model</span></a>
+  <a href="#types" data-target="types" aria-label="16개 유형"><span>16 Types</span></a>
+  <a href="#start" data-target="start" aria-label="시작과 문의"><span>Start</span></a>
+</nav>
+
+<main>
+  <!-- 1. Hero -->
+  <section class="hero full" id="home" data-theme-tone="dark">
+    <canvas class="hero-canvas" id="helix" aria-hidden="true"></canvas>
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Biz-DNA Diagnosis</span>
+        <h1>Find the DNA<br>of your business.</h1>
+        <p class="lead">100개 문항에 답하면 기업 DNA 유형, 성장단계, 8대 경영역량, 우선 성장전략을 한 번에 진단합니다. 진단을 마치면 바로 기본형 보고서를 받아 볼 수 있습니다.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#start">무료 기본진단 시작 <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#diagnosis">진단 방법 보기</a>
+        </div>
+      </div>
+      <aside class="sample-card" aria-label="진단 결과 예시">
+        <div class="sample-head">
+          <small>Result Preview</small>
+          <span class="tag-example">가상기업 예시</span>
+        </div>
+        <div class="sample-code">GICO</div>
+        <div class="sample-name">기술중심 성장형</div>
+        <div class="axis-bars" aria-label="4축 성향 점수">
+          <div class="axis"><span>S</span><div class="axis-track"><i style="left:79.17%"></i></div><b>G</b></div>
+          <div class="axis"><span>E</span><div class="axis-track"><i style="left:83.33%"></i></div><b>I</b></div>
+          <div class="axis"><b>C</b><div class="axis-track"><i style="left:33.33%"></i></div><span>N</span></div>
+          <div class="axis"><b>O</b><div class="axis-track"><i style="left:29.17%"></i></div><span>P</span></div>
+        </div>
+        <div class="sample-rows">
+          <div class="sample-row"><span>성장단계</span><strong>S3 사업화 안정기</strong></div>
+          <div class="sample-row"><span>종합역량</span><strong>61.87점 · C등급</strong></div>
+          <div class="sample-row"><span>우선 전략</span><strong>재무·자금관리</strong></div>
+        </div>
+      </aside>
+    </div>
+    <div class="scroll-indicator" aria-hidden="true"><small>Scroll</small><div class="scroll-line"></div></div>
+  </section>
+
+  <!-- 2. Why -->
+  <section class="why full" id="why" data-theme-tone="light">
+    <div class="why-visual" aria-hidden="true"></div>
+    <div class="container">
+      <span class="eyebrow">Why Biz-DNA</span>
+      <h2>점수표가 아니라<br><span class="accent">성장 경로</span>를 진단합니다.</h2>
+      <p class="lead">약한 영역을 그대로 고치라고 권하면 오히려 위험할 수 있습니다. 자금이 부족한 기업에 마케팅 확대를 권하는 경우가 그렇습니다. Biz-DNA는 기업의 성향과 사업화 단계, 성장을 막는 제약을 함께 보고 지금 먼저 할 일을 알려 드립니다.</p>
+      <div class="questions">
+        <article class="question"><small>Q1 · DNA 유형</small><h3>우리는 어떤 기업인가?</h3><p>4가지 경영성향 축으로 16개 유형 중 하나를 찾습니다.</p></article>
+        <article class="question"><small>Q2 · 성장단계</small><h3>지금 어느 단계인가?</h3><p>업력이 아닌 사업화 상태로 S1~S5 단계를 판정합니다.</p></article>
+        <article class="question"><small>Q3 · 성장제약</small><h3>무엇이 성장을 막는가?</h3><p>현금흐름, 시장검증, 수익성, 창업자 의존 등 제약을 찾습니다.</p></article>
+        <article class="question"><small>Q4 · 성장전략</small><h3>무엇부터 해야 하는가?</h3><p>12개 전략군 가운데 우선 전략 3개와 실행과제를 제시합니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Diagnosis -->
+  <section class="diagnosis full" id="diagnosis" data-theme-tone="light">
+    <div class="container">
+      <div class="biz-top">
+        <div>
+          <span class="eyebrow">Core Diagnosis</span>
+          <h2>진단 구성</h2>
+          <p>네 가지 결과는 서로 독립적으로 계산합니다. 결과와 근거를 보고서로 정리하고, 실행과 재진단까지 이어집니다.</p>
+        </div>
+        <div class="process" aria-label="진단 진행 순서">
+          기업정보 <i>→</i> 기본진단 <i>→</i> 정밀진단 <i>→</i> 결과·보고서 <i>→</i> 실행·재진단
+          <strong>진단부터 재진단까지 한 곳에서</strong>
+        </div>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <span class="card-num" aria-hidden="true">01</span>
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9M9 7h6M9 17h6"/></svg>
+          <h3>DNA 유형</h3><div class="eng">DNA Type</div>
+          <ul><li>4축 24문항 상대선택</li><li>16개 유형 판정</li><li>40~60점 경계 성향 표시</li><li>유형은 우열이 아닌 전략 성향</li></ul>
+        </article>
+        <article class="card">
+          <span class="card-num" aria-hidden="true">02</span>
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M3 20h4v-4h4v-4h4V8h4V4"/><path d="M3 20h18"/></svg>
+          <h3>성장단계</h3><div class="eng">Growth Stage</div>
+          <ul><li>6개 지표 가중평균</li><li>단계별 필수 통과조건</li><li>S1 탐색기 ~ S5 규모화기</li><li>업력이 아닌 사업화 상태 기준</li></ul>
+        </article>
+        <article class="card">
+          <span class="card-num" aria-hidden="true">03</span>
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l8.5 6.2-3.2 10H6.7l-3.2-10z"/><path d="M12 7.5l4 3-1.5 4.8h-5L8 10.5z"/></svg>
+          <h3>경영역량</h3><div class="eng">Capabilities</div>
+          <ul><li>8대 영역 64문항</li><li>영역별 100점 환산</li><li>가중 종합점수와 A~E 등급</li><li>강점과 우선 보완영역</li></ul>
+        </article>
+        <article class="card">
+          <span class="card-num" aria-hidden="true">04</span>
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6-6M15 5.5h3.5V9"/></svg>
+          <h3>성장전략</h3><div class="eng">Strategy</div>
+          <ul><li>12개 전략군 우선순위</li><li>현금흐름·시장검증 규칙 우선</li><li>선행조건 미충족 전략은 보류</li><li>추천 근거와 적용 규칙 공개</li></ul>
+        </article>
+        <article class="card">
+          <span class="card-num" aria-hidden="true">05</span>
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h8l4 4v15H6z"/><path d="M14 2.5v4h4M9 13h6M9 17h4"/></svg>
+          <h3>보고서·재진단</h3><div class="eng">Report</div>
+          <ul><li>기본형 5쪽 즉시 제공</li><li>정밀형 15~20쪽</li><li>90일 실행계획과 KPI</li><li>3·6·12개월 재진단</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Model -->
+  <section class="model full" id="model" data-theme-tone="dark">
+    <div class="container impact-grid">
+      <div>
+        <span class="eyebrow">Model at a Glance</span>
+        <h2>검증할 수 있는 규칙으로<br><span class="accent">진단합니다.</span></h2>
+        <p>점수와 유형은 규칙기반 진단엔진이 계산합니다. AI는 결과를 설명할 뿐 점수나 순위를 바꾸지 않습니다. 모든 추천에는 근거와 적용된 규칙, 문항·가중치 버전이 함께 기록됩니다.</p>
+        <p class="note">가중치와 기준점은 시범검증 전 가설값이며, 시범진단 결과로 보정합니다.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-box"><h4>진단 문항</h4><div class="num">100<span>문항</span></div><small>DNA 24 · 역량 64 · 계획 12</small></div>
+        <div class="stat-box"><h4>기업 DNA 유형</h4><div class="num">16<span>유형</span></div><small>4개 경영성향 축</small></div>
+        <div class="stat-box"><h4>경영역량</h4><div class="num">8<span>영역</span></div><small>영역별 8문항</small></div>
+        <div class="stat-box"><h4>성장전략</h4><div class="num">12<span>전략군</span></div><small>우선 전략 3개 제시</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 16 Types -->
+  <section class="types full" id="types" data-theme-tone="light">
+    <div class="container">
+      <div class="types-intro">
+        <div>
+          <span class="eyebrow">16 DNA Types</span>
+          <h2>16가지<br>기업 DNA</h2>
+        </div>
+        <div>
+          <p>성장지향, 경쟁전략, 시장전략, 경영방식 4개 축의 조합으로 유형이 정해집니다. 유형은 우열이 아니며, 재진단 때 바뀔 수 있습니다.</p>
+          <div class="axis-legend">
+            <span><b>G</b>성장확장 · <b>S</b>안정내실</span>
+            <span><b>I</b>혁신차별 · <b>E</b>효율경쟁</span>
+            <span><b>N</b>시장개척 · <b>C</b>기존시장집중</span>
+            <span><b>P</b>조직체계 · <b>O</b>창업자주도</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="marquee" id="marquee">
+      <div class="track" id="trackA"></div>
+      <div class="track reverse" id="trackB"></div>
+    </div>
+  </section>
+
+  <!-- 6. Start -->
+  <section class="start" id="start" data-theme-tone="light">
+    <div class="container">
+      <span class="eyebrow">Start &amp; Contact</span>
+      <h2>진단 시작하기</h2>
+      <div class="contact-grid">
+        <div class="contact-left">
+          <article class="office-card">
+            <div class="office-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-4v4l6-4v4l6-4v16z"/><path d="M7 17h2M11 17h2M15 17h2"/></svg>
+            </div>
+            <div>
+              <h3>기업 진단</h3>
+              <p>기업정보를 입력하고 기본진단에 답하면 유형과 단계를 바로 확인할 수 있습니다. 정밀진단까지 마치면 전략과 실행계획이 담긴 보고서를 받습니다.</p>
+              <div class="office-meta"><span>중간저장 지원</span><span>기본형 PDF</span><span>PC·모바일</span></div>
+              <a class="btn btn-dark" href="#start">무료 기본진단 시작 <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+          <article class="office-card">
+            <div class="office-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
+            </div>
+            <div>
+              <h3>기관·컨설턴트</h3>
+              <p>운영기관은 소속 기업의 유형 분포와 성장장애를 보고, 컨설턴트는 담당 기업의 결과와 실행과제를 함께 관리합니다.</p>
+              <div class="office-meta"><span>업종별 통계</span><span>담당 기업 관리</span><span>성과 추적</span></div>
+              <a class="btn btn-line" href="#start">도입 문의</a>
+            </div>
+          </article>
+        </div>
+        <aside class="contact-panel">
+          <div>
+            <h3>Contact Us</h3>
+            <p class="copy">서비스 도입과 시범진단 참여에 관한 문의를 받습니다.</p>
+          </div>
+          <div class="contact-list">
+            <div class="contact-item"><small>운영</small><p class="muted">운영 주체 확정 후 표시</p></div>
+            <div class="contact-item"><small>연락처</small><p class="muted">서비스 개설 후 표시</p></div>
+            <div class="contact-item"><small>이메일</small><p class="muted">서비스 개설 후 표시</p></div>
+          </div>
+          <p class="contact-note">입력하신 기업정보와 진단결과는 해당 기업과 권한을 받은 담당자만 볼 수 있습니다.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-shell">
+    <div>
+      <div class="footer-brand">
+        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M9 3c0 7 14 7 14 13S9 22 9 29" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M23 3c0 7-14 7-14 13s14 6 14 13" stroke="#0071e3" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M11 7.5h10M11 24.5h10M13.5 12h5M13.5 20h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>
+        </svg>
+        Biz-DNA
+      </div>
+      <p class="footer-copy">중소기업 경영진단 플랫폼. 기업 DNA 유형, 성장단계, 경영역량, 성장전략을 진단하고 실행과 재진단까지 연결합니다.</p>
+    </div>
+    <div class="footer-meta">
+      <p><strong>서비스명</strong>Biz-DNA (가칭)</p>
+      <p><strong>대상</strong>중소기업 · 창업기업 · 성장기업</p>
+      <p><strong>운영</strong>미정</p>
+      <p><strong>안내</strong>진단모형의 가중치와 기준점은 시범검증 전 가설값입니다. 화면의 결과는 가상기업 예시입니다.</p>
+    </div>
+    <div class="footer-bottom">© 2026 Biz-DNA (가칭) · 메인 화면 디자인 시안</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var TYPES = [
+    ['GINP', '혁신시장 개척형', '신시장 진입·스케일업'],
+    ['GINO', '창업자 주도 혁신형', '사업모델 검증·조직화'],
+    ['GICP', '혁신시장 심화형', '제품 고도화·고객확장'],
+    ['GICO', '기술중심 성장형', '사업화·전문인력 확충'],
+    ['GENP', '효율기반 시장확장형', '표준화·채널확장'],
+    ['GENO', '기회추구 확장형', '확장위험 관리·운영체계'],
+    ['GECP', '체계적 규모성장형', '생산성 향상·규모 확대'],
+    ['GECO', '실행중심 성장형', '업무체계화·성장기반'],
+    ['SINP', '선택적 혁신개척형', '단계적 신사업 실증'],
+    ['SINO', '전문기술 탐색형', '기술사업화·고객검증'],
+    ['SICP', '혁신역량 축적형', '핵심기술 고도화'],
+    ['SICO', '전문제품 집중형', '전문시장·수익모델 개선'],
+    ['SENP', '안정기반 시장다변화형', '위험분산·채널다변화'],
+    ['SENO', '기회선택 운영형', '기회평가·투자규율'],
+    ['SECP', '안정경영 최적화형', '원가혁신·수익성 제고'],
+    ['SECO', '소규모 내실경영형', '현금흐름·고객유지']
+  ];
+
+  function card(t) {
+    var el = document.createElement('article');
+    el.className = 'type-card';
+    var code = '<div class="type-code">' + t[0].split('').map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>';
+    el.innerHTML = code + '<div class="type-name">' + t[1] + '</div><div class="type-strategy">' + t[2] + '</div>';
+    return el;
+  }
+  function fill(track, list) {
+    // 두 번 넣어 -50% 이동으로 끊김 없이 순환
+    for (var r = 0; r < 2; r++) {
+      list.forEach(function (t, i) {
+        var c = card(t);
+        if (r === 1) c.setAttribute('aria-hidden', 'true');
+        track.appendChild(c);
+      });
+    }
+  }
+  fill(document.getElementById('trackA'), TYPES.slice(0, 8));
+  fill(document.getElementById('trackB'), TYPES.slice(8));
+
+  // 헤더: 스크롤하면 유리 알약형
+  var header = document.getElementById('siteHeader');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 40); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // 모바일 메뉴
+  var toggle = document.getElementById('menuToggle');
+  var menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', function () {
+    var open = menu.hidden;
+    menu.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); }
+  });
+
+  // 점 내비: 현재 섹션 표시, 밝은 섹션이면 점 색 반전
+  var dotNav = document.getElementById('dotNav');
+  var dots = Array.prototype.slice.call(dotNav.querySelectorAll('a'));
+  var sections = dots.map(function (d) { return document.getElementById(d.dataset.target); });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var id = en.target.id;
+        dots.forEach(function (d) { d.classList.toggle('active', d.dataset.target === id); });
+        dotNav.classList.toggle('on-light', en.target.dataset.themeTone === 'light');
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+  dots[0].classList.add('active');
+
+  // 히어로 DNA 나선 (Canvas)
+  var canvas = document.getElementById('helix');
+  var ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var w = 0, h = 0, dpr = 1, t = 0, running = true, raf = null;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    var narrow = w < 900;
+    var cx = narrow ? w * 0.82 : w * 0.72;
+    var amp = narrow ? Math.min(70, w * 0.16) : Math.min(150, w * 0.1);
+    var step = 22;
+    var count = Math.ceil((h + 80) / step);
+    for (var i = 0; i < count; i++) {
+      var y = -40 + i * step;
+      var phase = i * 0.32 + t;
+      var x1 = cx + Math.sin(phase) * amp;
+      var x2 = cx + Math.sin(phase + Math.PI) * amp;
+      var depth1 = (Math.cos(phase) + 1) / 2;
+      var depth2 = 1 - depth1;
+      // 염기쌍 연결선
+      if (i % 2 === 0) {
+        ctx.strokeStyle = 'rgba(143, 212, 255, ' + (0.06 + 0.1 * Math.min(depth1, depth2) * 2) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(0, 113, 227, ' + (0.25 + 0.6 * depth1) + ')';
+      ctx.beginPath(); ctx.arc(x1, y, 2 + 2.6 * depth1, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.12 + 0.45 * depth2) + ')';
+      ctx.beginPath(); ctx.arc(x2, y, 1.6 + 2.2 * depth2, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function loop() {
+    if (!running) { raf = null; return; }
+    t += 0.008;
+    draw();
+    raf = requestAnimationFrame(loop);
+  }
+  resize(); draw();
+  window.addEventListener('resize', function () { resize(); draw(); });
+  if (!reduce) {
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (en) {
+        running = en[0].isIntersecting;
+        if (running && !raf) raf = requestAnimationFrame(loop);
+      }).observe(canvas);
+    }
+    raf = requestAnimationFrame(loop);
+  }
+})();
+</script>

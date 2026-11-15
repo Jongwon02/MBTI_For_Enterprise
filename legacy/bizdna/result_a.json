@@ -1,0 +1,302 @@
+{
+  "model_version": "1.0-prototype",
+  "company": {
+    "name": "그린푸드랩",
+    "industry": "식품제조"
+  },
+  "dna": {
+    "type": "GICO",
+    "axes": {
+      "성장지향": {
+        "score": 79.17,
+        "letter": "G",
+        "boundary": false
+      },
+      "혁신차별": {
+        "score": 83.33,
+        "letter": "I",
+        "boundary": false
+      },
+      "시장개척": {
+        "score": 33.33,
+        "letter": "C",
+        "boundary": false
+      },
+      "조직체계": {
+        "score": 29.17,
+        "letter": "O",
+        "boundary": false
+      }
+    }
+  },
+  "competence": {
+    "domains": {
+      "A": 65.62,
+      "B": 56.25,
+      "C": 84.38,
+      "D": 43.75,
+      "E": 40.62,
+      "F": 68.75,
+      "G": 43.75,
+      "H": 75.0
+    },
+    "total": 61.87
+  },
+  "stage": {
+    "code": "S3",
+    "name": "사업화 안정기",
+    "weighted_index": 3.05,
+    "gate_adjusted": false
+  },
+  "risks": [
+    "단위경제성 악화",
+    "창업자 의존",
+    "성장자금 부족"
+  ],
+  "strategies": [
+    {
+      "code": "ST07",
+      "name": "재무구조 및 자금관리",
+      "score": 81.72,
+      "status": "recommended",
+      "factors": {
+        "fit": 90,
+        "urgency": 74.06,
+        "impact": 85,
+        "feasibility": 75
+      },
+      "reasons": [
+        "성장자금 조달여건 점검"
+      ]
+    },
+    {
+      "code": "ST06",
+      "name": "수익구조 개선",
+      "score": 71.34,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 72.81,
+        "impact": 75,
+        "feasibility": 75
+      },
+      "reasons": [
+        "단위경제성 개선"
+      ]
+    },
+    {
+      "code": "ST08",
+      "name": "조직·인재 역량 강화",
+      "score": 61.69,
+      "status": "recommended",
+      "factors": {
+        "fit": 50,
+        "urgency": 80.63,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": [
+        "창업자 업무집중 해소"
+      ]
+    },
+    {
+      "code": "ST04",
+      "name": "브랜드·마케팅 고도화",
+      "score": 60.88,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 46.25,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST09",
+      "name": "생산·운영체계 고도화",
+      "score": 58.06,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 36.88,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST02",
+      "name": "제품시장 적합성 확보",
+      "score": 56.75,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 32.5,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST10",
+      "name": "디지털전환·AI 활용",
+      "score": 49.5,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 50.0,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST01",
+      "name": "사업모델 검증",
+      "score": 45.52,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 36.72,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST12",
+      "name": "신사업·사업전환",
+      "score": 42.28,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 25.94,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST05",
+      "name": "기술·제품 혁신",
+      "score": 39.75,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 17.5,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST11",
+      "name": "투자유치·스케일업",
+      "score": 58.63,
+      "status": "deferred",
+      "factors": {
+        "fit": 65,
+        "urgency": 38.75,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "단위경제성 개선 선행"
+      ]
+    },
+    {
+      "code": "ST03",
+      "name": "시장·판로 확대",
+      "score": 58.02,
+      "status": "deferred",
+      "factors": {
+        "fit": 65,
+        "urgency": 36.72,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "단위경제성 개선 선행"
+      ]
+    }
+  ],
+  "top_recommended": [
+    {
+      "code": "ST07",
+      "name": "재무구조 및 자금관리",
+      "score": 81.72,
+      "status": "recommended",
+      "factors": {
+        "fit": 90,
+        "urgency": 74.06,
+        "impact": 85,
+        "feasibility": 75
+      },
+      "reasons": [
+        "성장자금 조달여건 점검"
+      ]
+    },
+    {
+      "code": "ST06",
+      "name": "수익구조 개선",
+      "score": 71.34,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 72.81,
+        "impact": 75,
+        "feasibility": 75
+      },
+      "reasons": [
+        "단위경제성 개선"
+      ]
+    },
+    {
+      "code": "ST08",
+      "name": "조직·인재 역량 강화",
+      "score": 61.69,
+      "status": "recommended",
+      "factors": {
+        "fit": 50,
+        "urgency": 80.63,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": [
+        "창업자 업무집중 해소"
+      ]
+    },
+    {
+      "code": "ST04",
+      "name": "브랜드·마케팅 고도화",
+      "score": 60.88,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 46.25,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST09",
+      "name": "생산·운영체계 고도화",
+      "score": 58.06,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 36.88,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    }
+  ],
+  "limitations": [
+    "가중치·임계값은 시범용 가설",
+    "자기보고식 응답이며 외부 증빙 검증 없음",
+    "추천점수는 실제 성과예측값이 아님"
+  ]
+}

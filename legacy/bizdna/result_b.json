@@ -1,0 +1,295 @@
+{
+  "model_version": "1.0-prototype",
+  "company": {
+    "name": "넥스트솔루션",
+    "industry": "B2B SaaS"
+  },
+  "dna": {
+    "type": "GINO",
+    "axes": {
+      "성장지향": {
+        "score": 91.67,
+        "letter": "G",
+        "boundary": false
+      },
+      "혁신차별": {
+        "score": 87.5,
+        "letter": "I",
+        "boundary": false
+      },
+      "시장개척": {
+        "score": 83.33,
+        "letter": "N",
+        "boundary": false
+      },
+      "조직체계": {
+        "score": 37.5,
+        "letter": "O",
+        "boundary": false
+      }
+    }
+  },
+  "competence": {
+    "domains": {
+      "A": 81.25,
+      "B": 84.38,
+      "C": 90.62,
+      "D": 65.62,
+      "E": 50.0,
+      "F": 65.62,
+      "G": 81.25,
+      "H": 75.0
+    },
+    "total": 75.16
+  },
+  "stage": {
+    "code": "S4",
+    "name": "성장확장기",
+    "weighted_index": 4.25,
+    "gate_adjusted": false
+  },
+  "risks": [
+    "창업자 의존",
+    "서비스 운영부담"
+  ],
+  "strategies": [
+    {
+      "code": "ST08",
+      "name": "조직·인재 역량 강화",
+      "score": 71.09,
+      "status": "recommended",
+      "factors": {
+        "fit": 75,
+        "urgency": 70.31,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "창업자 업무집중 해소"
+      ]
+    },
+    {
+      "code": "ST09",
+      "name": "생산·운영체계 고도화",
+      "score": 65.75,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 62.5,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "고객지원 병목 개선"
+      ]
+    },
+    {
+      "code": "ST03",
+      "name": "시장·판로 확대",
+      "score": 65.17,
+      "status": "recommended",
+      "factors": {
+        "fit": 90,
+        "urgency": 18.9,
+        "impact": 85,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST11",
+      "name": "투자유치·스케일업",
+      "score": 54.92,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 26.41,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST04",
+      "name": "브랜드·마케팅 고도화",
+      "score": 51.87,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 16.25,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST02",
+      "name": "제품시장 적합성 확보",
+      "score": 51.17,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 13.91,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST10",
+      "name": "디지털전환·AI 활용",
+      "score": 48.8,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 47.66,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": [
+        "고객지원 병목 개선"
+      ]
+    },
+    {
+      "code": "ST06",
+      "name": "수익구조 개선",
+      "score": 44.35,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 32.82,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST07",
+      "name": "재무구조 및 자금관리",
+      "score": 44.35,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 32.82,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST01",
+      "name": "사업모델 검증",
+      "score": 40.03,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 18.44,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST12",
+      "name": "신사업·사업전환",
+      "score": 39.84,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 17.81,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST05",
+      "name": "기술·제품 혁신",
+      "score": 38.25,
+      "status": "recommended",
+      "factors": {
+        "fit": 40,
+        "urgency": 12.5,
+        "impact": 45,
+        "feasibility": 75
+      },
+      "reasons": []
+    }
+  ],
+  "top_recommended": [
+    {
+      "code": "ST08",
+      "name": "조직·인재 역량 강화",
+      "score": 71.09,
+      "status": "recommended",
+      "factors": {
+        "fit": 75,
+        "urgency": 70.31,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "창업자 업무집중 해소"
+      ]
+    },
+    {
+      "code": "ST09",
+      "name": "생산·운영체계 고도화",
+      "score": 65.75,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 62.5,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": [
+        "고객지원 병목 개선"
+      ]
+    },
+    {
+      "code": "ST03",
+      "name": "시장·판로 확대",
+      "score": 65.17,
+      "status": "recommended",
+      "factors": {
+        "fit": 90,
+        "urgency": 18.9,
+        "impact": 85,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST11",
+      "name": "투자유치·스케일업",
+      "score": 54.92,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 26.41,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    },
+    {
+      "code": "ST04",
+      "name": "브랜드·마케팅 고도화",
+      "score": 51.87,
+      "status": "recommended",
+      "factors": {
+        "fit": 65,
+        "urgency": 16.25,
+        "impact": 65,
+        "feasibility": 75
+      },
+      "reasons": []
+    }
+  ],
+  "limitations": [
+    "가중치·임계값은 시범용 가설",
+    "자기보고식 응답이며 외부 증빙 검증 없음",
+    "추천점수는 실제 성과예측값이 아님"
+  ]
+}

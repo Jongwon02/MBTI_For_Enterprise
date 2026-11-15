@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+web/.next/
+web/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# 환경변수·비밀키 (api/.env, web/.env.local 등). 예시 파일(.env.example)만 올린다.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 생성 파일
+*.sqlite3
+api/output/
+
+# 범위 밖 소상공인 MVP
+al/

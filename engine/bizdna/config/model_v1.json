@@ -1,0 +1,122 @@
+{
+  "version": "model-1.0",
+  "note": "시범검증 전 가설값. 1.0 시제품(legacy/bizdna/engine.py)과 같은 값이며, 값을 바꾸면 version을 올린다.",
+  "dna": {
+    "items_per_axis": 6,
+    "a_threshold": 60,
+    "b_threshold": 40,
+    "letter_cutoff": 50,
+    "low_reliability_min_answers": 4,
+    "axes": [
+      {"key": "growth", "name": "성장지향", "a": "G", "b": "S", "a_name": "성장확장형", "b_name": "안정내실형", "items": ["D01", "D02", "D03", "D04", "D05", "D06"]},
+      {"key": "competition", "name": "경쟁전략", "a": "I", "b": "E", "a_name": "혁신차별형", "b_name": "효율경쟁형", "items": ["D07", "D08", "D09", "D10", "D11", "D12"]},
+      {"key": "market", "name": "시장전략", "a": "N", "b": "C", "a_name": "시장개척형", "b_name": "기존시장집중형", "items": ["D13", "D14", "D15", "D16", "D17", "D18"]},
+      {"key": "management", "name": "경영방식", "a": "P", "b": "O", "a_name": "조직체계형", "b_name": "창업자주도형", "items": ["D19", "D20", "D21", "D22", "D23", "D24"]}
+    ],
+    "reverse_items": []
+  },
+  "types": {
+    "GINP": {"name": "혁신시장 개척형", "traits": "혁신·시장확장·조직체계", "strategy": "신시장 진입·스케일업"},
+    "GINO": {"name": "창업자 주도 혁신형", "traits": "창업자 중심 혁신·신시장 개척", "strategy": "사업모델 검증·조직화"},
+    "GICP": {"name": "혁신시장 심화형", "traits": "기존시장 내 혁신·조직운영", "strategy": "제품 고도화·고객확장"},
+    "GICO": {"name": "기술중심 성장형", "traits": "기술경쟁력·창업자 중심 운영", "strategy": "사업화·전문인력 확충"},
+    "GENP": {"name": "효율기반 시장확장형", "traits": "운영효율·신시장·조직체계", "strategy": "표준화·채널확장"},
+    "GENO": {"name": "기회추구 확장형", "traits": "창업자 주도 시장기회 포착", "strategy": "확장위험 관리·운영체계 구축"},
+    "GECP": {"name": "체계적 규모성장형", "traits": "기존시장·효율·조직관리", "strategy": "생산성 향상·규모 확대"},
+    "GECO": {"name": "실행중심 성장형", "traits": "창업자 주도 실행·기존시장", "strategy": "업무체계화·성장기반 구축"},
+    "SINP": {"name": "선택적 혁신개척형", "traits": "안정기반·혁신·신시장 탐색", "strategy": "단계적 신사업 실증"},
+    "SINO": {"name": "전문기술 탐색형", "traits": "창업자 기술력·선별적 시장진입", "strategy": "기술사업화·고객검증"},
+    "SICP": {"name": "혁신역량 축적형", "traits": "기존시장·혁신·체계운영", "strategy": "핵심기술 고도화"},
+    "SICO": {"name": "전문제품 집중형", "traits": "창업자 전문성·기존고객", "strategy": "전문시장 강화·수익모델 개선"},
+    "SENP": {"name": "안정기반 시장다변화형", "traits": "효율경영·선별적 시장확장", "strategy": "위험분산·채널다변화"},
+    "SENO": {"name": "기회선택 운영형", "traits": "창업자 판단·효율·시장탐색", "strategy": "기회평가·투자규율 강화"},
+    "SECP": {"name": "안정경영 최적화형", "traits": "기존시장·효율·체계관리", "strategy": "원가혁신·수익성 제고"},
+    "SECO": {"name": "소규모 내실경영형", "traits": "기존고객·창업자 직접운영", "strategy": "현금흐름·고객유지·업무표준화"}
+  },
+  "competence": {
+    "items_per_domain": 8,
+    "domains": {
+      "A": {"name": "경영전략·사업모델", "weight": 0.15},
+      "B": {"name": "시장·고객·마케팅", "weight": 0.15},
+      "C": {"name": "제품·서비스·기술", "weight": 0.15},
+      "D": {"name": "재무·자금관리", "weight": 0.15},
+      "E": {"name": "조직·창업팀", "weight": 0.10},
+      "F": {"name": "생산·운영·품질", "weight": 0.10},
+      "G": {"name": "디지털·데이터", "weight": 0.05},
+      "H": {"name": "성장잠재력·확장성", "weight": 0.15}
+    },
+    "grades": [
+      {"min": 85, "grade": "A", "name": "역량고도화", "meaning": "성장전략 실행기반 우수"},
+      {"min": 70, "grade": "B", "name": "성장기반 확보", "meaning": "일부 역량 보완 필요"},
+      {"min": 55, "grade": "C", "name": "선택적 역량강화", "meaning": "핵심 병목요인 개선 필요"},
+      {"min": 40, "grade": "D", "name": "기반구축 필요", "meaning": "주요 경영역량 정비 필요"},
+      {"min": 0, "grade": "E", "name": "집중개선 필요", "meaning": "기초 경영체계 구축 우선"}
+    ]
+  },
+  "stage": {
+    "names": {"1": "사업모델 탐색기", "2": "시장검증기", "3": "사업화 안정기", "4": "성장확장기", "5": "규모화·재도약기"},
+    "tasks": {"1": "고객발굴·사업모델 구체화", "2": "제품시장 적합성 검증", "3": "수익모델·운영 안정화", "4": "시장확장·조직화·자금조달", "5": "스케일업·신사업·사업전환"},
+    "weights": {"product": 0.20, "customer": 0.20, "revenue": 0.20, "cash": 0.15, "operations": 0.15, "expansion": 0.10},
+    "indicator_names": {"product": "제품·서비스 사업화", "customer": "고객검증·반복구매", "revenue": "매출 발생·성장", "cash": "수익모델·현금흐름", "operations": "조직·운영체계", "expansion": "시장확장·투자실행"},
+    "gates": [
+      {"id": "G-S4", "applies_from": 4, "fallback": 3, "require": {"customer": 4, "revenue": 4, "operations": 3}, "reason": "S4 이상은 반복구매·실질 매출성장·확장 가능한 운영능력이 필요"},
+      {"id": "G-S5", "applies_from": 5, "fallback": 4, "require": {"operations": 4, "expansion": 4}, "reason": "S5는 조직적 운영과 사업확장 실적이 필요"},
+      {"id": "G-S3", "applies_from": 3, "fallback": 2, "require": {"customer": 3, "revenue": 2}, "reason": "S3 이상은 반복판매와 매출 발생이 필요"},
+      {"id": "G-S2", "applies_from": 2, "fallback": 1, "require": {"product": 2}, "reason": "S2 이상은 시제품 이상의 사업화가 필요"}
+    ]
+  },
+  "risks": {
+    "cash_crisis": "현금흐름 위험",
+    "market_unvalidated": "시장검증 미완료",
+    "negative_unit_margin": "단위경제성 악화",
+    "founder_bottleneck": "창업자 의존",
+    "capacity_shortage": "공급능력 부족",
+    "funding_gap": "성장자금 부족",
+    "service_overload": "서비스 운영부담"
+  },
+  "goals": {
+    "profit": {"name": "수익성 개선", "strategies": ["ST06", "ST07", "ST09"]},
+    "market": {"name": "매출·시장 확대", "strategies": ["ST03", "ST04", "ST02"]},
+    "product": {"name": "신제품·기술개발", "strategies": ["ST05", "ST02", "ST12"]},
+    "scale": {"name": "사업규모 확대·조직화", "strategies": ["ST08", "ST09", "ST11", "ST03"]},
+    "funding": {"name": "투자유치·자금조달", "strategies": ["ST07", "ST11"]},
+    "stability": {"name": "경영 안정화", "strategies": ["ST06", "ST07", "ST08"]}
+  },
+  "strategy": {
+    "weights": {"fit": 0.30, "urgency": 0.30, "impact": 0.25, "feasibility": 0.15},
+    "fit_base": 40, "fit_per_goal": 25,
+    "impact_base": 45, "impact_per_goal": 20,
+    "feasibility_default": 75,
+    "top_n": 5,
+    "library": {
+      "ST01": {"name": "사업모델 검증", "domains": {"A": 0.45, "B": 0.40, "H": 0.15}, "actions": ["유료고객 인터뷰 10건 이상 계획 수립", "사업모델 가설 및 가격정책 검증"], "kpis": ["유료고객 수", "고객 인터뷰 완료율"]},
+      "ST02": {"name": "제품시장 적합성 확보", "domains": {"B": 0.50, "C": 0.35, "A": 0.15}, "actions": ["사용성·이탈원인 분석", "핵심제품 개선 우선순위 수립"], "kpis": ["반복구매율", "제품 개선 완료율"]},
+      "ST03": {"name": "시장·판로 확대", "domains": {"B": 0.55, "A": 0.15, "H": 0.30}, "actions": ["목표 고객군별 채널 수익성 검증", "검증된 채널부터 판로 확대"], "kpis": ["신규고객 수", "채널별 매출총이익"]},
+      "ST04": {"name": "브랜드·마케팅 고도화", "domains": {"B": 0.80, "G": 0.20}, "actions": ["고객획득비용과 전환율 측정", "고객군별 마케팅 메시지 개선"], "kpis": ["고객획득비용", "전환율"]},
+      "ST05": {"name": "기술·제품 혁신", "domains": {"C": 0.80, "H": 0.20}, "actions": ["핵심제품 개발 로드맵 수립", "제품투자 성과 검증"], "kpis": ["신제품 매출비중", "개발 마일스톤 달성률"]},
+      "ST06": {"name": "수익구조 개선", "domains": {"D": 0.65, "F": 0.25, "A": 0.10}, "actions": ["제품별 원가·공헌이익 분석", "가격·제품구성·고정비 개선"], "kpis": ["공헌이익률", "영업이익률"]},
+      "ST07": {"name": "재무구조 및 자금관리", "domains": {"D": 0.90, "A": 0.10}, "actions": ["13주 현금흐름표 작성", "운전자금·차입금 상환계획 검토"], "kpis": ["현금보유개월수", "현금흐름 예측오차"]},
+      "ST08": {"name": "조직·인재 역량 강화", "domains": {"E": 0.85, "A": 0.15}, "actions": ["업무 책임자·권한위임 기준 수립", "핵심인력·직무 표준화"], "kpis": ["대표자 승인업무 비율", "핵심직무 충원율"]},
+      "ST09": {"name": "생산·운영체계 고도화", "domains": {"F": 0.80, "E": 0.20}, "actions": ["공급·고객지원 병목 측정", "품질·납기·처리시간 개선"], "kpis": ["납기준수율", "고객지원 처리시간"]},
+      "ST10": {"name": "디지털전환·AI 활용", "domains": {"G": 0.75, "F": 0.25}, "actions": ["자동화 우선업무 선정", "데이터 접근권한·보안 관리"], "kpis": ["업무자동화율", "데이터 오류율"]},
+      "ST11": {"name": "투자유치·스케일업", "domains": {"D": 0.35, "H": 0.35, "A": 0.30}, "actions": ["투자자금 사용계획 검증", "재무모델 및 투자자료 정비"], "kpis": ["조달확약금액", "투자마일스톤 달성률"]},
+      "ST12": {"name": "신사업·사업전환", "domains": {"A": 0.40, "C": 0.30, "H": 0.30}, "actions": ["신사업 고객·수익성 소규모 실증", "중단조건·전환일정 설정"], "kpis": ["신사업 유료검증 수", "실증 단계 완료율"]}
+    },
+    "rules": [
+      {"id": "R-CASH", "when_flag": "cash_crisis", "defer": ["ST03", "ST05", "ST11", "ST12"], "reason": "현금위험 해소 전 대규모 확장·투자 보류"},
+      {"id": "R-MARKET", "when_flag": "market_unvalidated", "defer": ["ST03", "ST04", "ST11"], "reason": "유료고객 검증 선행"},
+      {"id": "R-CAPACITY", "when_flag": "capacity_shortage", "defer": ["ST03"], "reason": "공급능력 확보 선행"},
+      {"id": "R-MARGIN-DEFER", "when_flag": "negative_unit_margin", "defer": ["ST03", "ST11"], "reason": "단위경제성 개선 선행"},
+      {"id": "R-FOUNDER", "when_flag": "founder_bottleneck", "boost": {"ST08": 25}, "fit_bonus": {"ST08": 10}, "reason": "창업자 업무집중 해소"},
+      {"id": "R-SERVICE", "when_flag": "service_overload", "boost": {"ST09": 25, "ST10": 25}, "reason": "고객지원 병목 개선"},
+      {"id": "R-FUNDING", "when_flag": "funding_gap", "boost": {"ST07": 20}, "reason": "성장자금 조달여건 점검"},
+      {"id": "R-MARGIN", "when_flag": "negative_unit_margin", "boost": {"ST06": 25}, "impact_bonus": {"ST06": 10}, "reason": "단위경제성 개선"},
+      {"id": "R-EARLY-STAGE", "when_stage_max": 2, "defer": ["ST11", "ST03"], "reason": "시장검증 단계의 선행과제 필요"}
+    ]
+  },
+  "limitations": [
+    "가중치·임계값은 시범용 가설",
+    "자기보고식 응답이며 외부 증빙 검증 없음",
+    "추천점수는 실제 성과예측값이 아님"
+  ]
+}

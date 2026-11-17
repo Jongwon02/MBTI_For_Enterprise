@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, downloadReport, runDiagnosis } from "@/lib/api";
+import { ApiError, downloadReport, getDiagnosis, runDiagnosis } from "@/lib/api";
 import { FIRST_FULL_STEP, loadSaved, save, type SavedSurvey } from "@/lib/storage";
 import type { Axis, DiagnosisResult, Strategy } from "@/lib/types";
 import { CompetenceRadar } from "./CompetenceRadar";
@@ -82,25 +82,51 @@ function StrategyCard({ s, rank }: { s: Strategy; rank: number }) {
 export function ResultApp() {
   const router = useRouter();
   // 브라우저에서만 렌더링된다(ResultClient, ssr:false).
-  const [saved] = useState<SavedSurvey | null>(loadSaved);
+  // ?id=… 이면 내 계정에 최종저장된 회차(저장 당시 결과)를, 아니면 이 브라우저의 응답으로 계산한 결과를 보여준다.
+  const [serverId] = useState(() => new URLSearchParams(window.location.search).get("id"));
+  const [saved, setSaved] = useState<SavedSurvey | null>(() => (serverId ? null : loadSaved()));
+  const [savedInfo, setSavedInfo] = useState<{ completedAt: string | null; modelVersion: string | null } | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  const run = useCallback(() => {
-    if (!saved?.basicDone) return;
+  // 서버 회차는 저장 당시 결과를 그대로 보여준다(엔진을 다시 돌리지 않음 → 당시 모형 버전으로 재현).
+  const loadServer = useCallback(() => {
+    if (!serverId) return;
+    getDiagnosis(serverId).then((rec) => {
+        if (!rec.result) throw new ApiError("아직 최종저장되지 않은 진단입니다. 마이페이지에서 이어서 진단하세요.");
+        const p = rec.progress ?? {};
+        setSaved({
+          survey: rec.survey, step: p.step ?? 0, maxStep: p.maxStep ?? 0, basicDone: true, phase: rec.phase,
+          savedAt: rec.updated_at, diagnosisId: rec.id,
+        });
+        setSavedInfo({ completedAt: rec.completed_at, modelVersion: rec.model_version });
+        setResult(rec.result);
+      }).catch((e) => setError(e instanceof ApiError ? e.message : "저장된 진단을 불러오지 못했습니다."));
+  }, [serverId]);
+
+  const runLocal = useCallback(() => {
+    if (serverId || !saved?.basicDone) return;
     runDiagnosis(saved.survey, saved.phase)
       .then(setResult)
       .catch((e) => setError(e instanceof ApiError ? e.message : "진단 중 오류가 발생했습니다."));
-  }, [saved]);
-  const retry = () => { setError(null); run(); };
+  }, [saved, serverId]);
+  const retry = () => { setError(null); if (serverId) loadServer(); else runLocal(); };
 
-  useEffect(run, [run]);
+  useEffect(loadServer, [loadServer]);
+  useEffect(runLocal, [runLocal]);
 
   const continueFull = () => {
     if (!saved) return;
-    save({ ...saved, step: Math.max(saved.step, FIRST_FULL_STEP), maxStep: Math.max(saved.maxStep, FIRST_FULL_STEP) });
+    const step = Math.max(saved.step, FIRST_FULL_STEP);
+    const maxStep = Math.max(saved.maxStep, FIRST_FULL_STEP);
+    if (saved.diagnosisId) {
+      // 회원 회차: 서버 응답을 기준으로 정밀진단을 이어 한다.
+      router.push(`/diagnosis?id=${saved.diagnosisId}&step=${step}`);
+      return;
+    }
+    save({ ...saved, step, maxStep });
     router.push("/diagnosis");
   };
 
@@ -117,7 +143,10 @@ export function ResultApp() {
     }
   };
 
-  if (!saved || !saved.basicDone) {
+  if (serverId && !saved && !error) {
+    return <div className="result-body"><div className="result-wrap"><div className="panel loading-panel">저장된 진단을 불러오는 중입니다…</div></div></div>;
+  }
+  if (!error && (!saved || !saved.basicDone)) {
     return (
       <div className="result-body"><div className="result-wrap">
         <div className="panel notice-panel">
@@ -136,7 +165,7 @@ export function ResultApp() {
           <p>{error}</p>
           <div className="warn-actions">
             <button className="btn btn-dark btn-sm" onClick={retry}>다시 시도</button>
-            <Link className="btn btn-line btn-sm" href="/diagnosis">응답 수정하기</Link>
+            <Link className="btn btn-line btn-sm" href={serverId ? "/mypage" : "/diagnosis"}>{serverId ? "마이페이지로" : "응답 수정하기"}</Link>
           </div>
         </div>
       </div></div>
@@ -297,10 +326,12 @@ export function ResultApp() {
           )}
 
           <div className="result-foot">
-            <Link className="btn btn-line btn-sm" href="/diagnosis">응답 수정하기</Link>
+            <Link className="btn btn-line btn-sm" href={serverId ? "/mypage" : "/diagnosis"}>{serverId ? "마이페이지로" : "응답 수정하기"}</Link>
             <p>
-              {result.limitations.join(" · ")}. 모형 {result.model_version} · 문항 {result.questions_version}.
-              결과는 이 브라우저에만 저장됩니다.
+              {result.limitations.join(" · ")}. 모형 {result.model_version} · 문항 {result.questions_version}.{" "}
+              {savedInfo
+                ? `내 계정에 저장된 결과입니다${savedInfo.completedAt ? ` (${new Date(savedInfo.completedAt).toLocaleString("ko-KR")} 최종저장)` : ""}.`
+                : "결과는 이 브라우저에만 저장됩니다."}
             </p>
           </div>
         </div>

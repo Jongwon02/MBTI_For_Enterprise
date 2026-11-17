@@ -10,14 +10,15 @@
 - **범위 밖(구현 금지)**: 소상공인(점포) 진단, 상권·카드매출 분석, 지원사업 신청자격 판정, 외부 재무데이터 자동 연계, AI의 점수·유형 직접 산출.
 - **문서 언어**: UI 문구, 주석, 커밋 메시지, 문서는 한국어. 코드 식별자(변수·함수·테이블명)는 영어.
 
-## 2. 현재 상태 (2026-11-16)
+## 2. 현재 상태 (2026-11-17)
 
 **진단 기능이 실제로 동작한다**: 기업정보 → 기본진단(DNA 24·성장단계 6·목표/장애) → 기본 결과 → 정밀진단(역량 64·성장계획) → 결과 대시보드 → PDF(기본형·정밀형).
 
 | 구분 | 상태 |
 | --- | --- |
 | 구현됨 | FR-02 기업정보, FR-03 웹 설문(기본/정밀 구분, 중간저장), FR-04 완결성 검증·결측 처리, FR-05~09 엔진, FR-10 결과 대시보드, FR-11 기본형 PDF, FR-13 정밀형 PDF(약 10쪽, 15~20쪽 목표 미달) |
-| 없음 | FR-01 계정·역할, FR-12 서버 저장·이력·권한(응답은 브라우저 localStorage에만 저장), 업종별 문항 분기, FR-14 이후 전부, AI 서술(FR-20) |
+| 구현됨 (2026-11-17) | FR-01 이메일 회원가입·로그인·로그아웃(Supabase Auth), 게스트 진단, 마이페이지(중간저장 이어하기·최종저장 결과 보기·삭제), FR-12 회원 진단 회차 서버 저장(본인 회차만 접근) |
+| 없음 | 역할(컨설턴트·운영기관·관리자)·`memberships`·`companies` 테이블, 비밀번호 재설정, 회원 탈퇴, 소셜 로그인, 업종별 문항 분기, FR-14 이후 전부, AI 서술(FR-20) |
 | 초안(사용자 확인 필요) | 성장단계 6문항의 단계별 문구, P01~P12 선택지, P01→goals·P09→flags 매핑 (`questions_v1.json`의 `draft: true`). 기본진단 범위(= DNA+단계+P01/P09)도 임시 결정 |
 
 - 실행: `run_dev.bat`(API 8000 + 웹 3000). 테스트: `.venv/Scripts/python -m pytest api`, `web`에서 `npx tsc --noEmit && npm run lint && npm run build`. 자세한 내용은 `README.md`.
@@ -35,8 +36,8 @@
 | 프런트엔드 | **Next.js 16**(App Router, cacheComponents) + React 19 + TypeScript + Tailwind 4 | 사용 중 |
 | 차트 | Recharts (역량 레이더) | 사용 중 |
 | PDF | ReportLab (2.0 방식). 폰트: `BIZDNA_FONT_REGULAR/BOLD` → 맑은 고딕 → 나눔 순으로 찾음 | 사용 중 |
-| DB | **Supabase** (PostgreSQL, 마이그레이션은 `supabase/migrations/*.sql`) | 결정됨 · 미구현 (11장) |
-| 회원가입·로그인 | **Supabase Auth** (웹: `@supabase/ssr`, API: JWT 검증) | 결정됨 · 미구현 (11장) |
+| DB | **Supabase** (PostgreSQL, 마이그레이션은 `supabase/migrations/*.sql`, 적용은 `scripts/migrate.py`) | 사용 중 (11장) |
+| 회원가입·로그인 | **Supabase Auth** (웹: `@supabase/ssr`, API: PyJWT로 JWT 검증) | 사용 중 (11장) |
 | 배포 | **Vercel** (한 프로젝트에 web + api 서비스) | 결정됨 · 미구현 (11장) |
 | 테스트 | pytest (엔진·API) | 화면 테스트(Playwright)는 없음 |
 
@@ -48,11 +49,15 @@
 api/engine/bizdna/  engine.py(진단·전략), survey.py(설문→엔진 입력, 완결성), config.py
   config/           model_v1.json(가중치·임계값·규칙), questions_v1.json(문항·초안 문항)
 api/engine/tests/   fixtures.py(기준 사례), test_regression.py(legacy 대조), test_engine.py
-api/bizdna_api/     main.py(/api/questions, /api/diagnose, /api/completeness, /api/report), report.py(PDF)
-api/tests/
-web/app/            page.tsx(메인), diagnosis/page.tsx(설문), diagnosis/result/page.tsx(결과), styles/*.css
-web/components/     SiteHeader·SiteFooter, home/, survey/(SurveyApp, fields), result/(ResultApp, CompetenceRadar)
-web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린푸드랩 예시 응답), content.ts
+api/bizdna_api/     main.py(/api/questions, /api/diagnose, /api/completeness, /api/report, /api/me, /api/diagnoses),
+                    auth.py(JWT 검증), signup.py(가입: 관리자 API), store.py(진단 회차 저장소: Postgres·테스트용 Memory), report.py(PDF)
+api/tests/          test_api.py, test_diagnoses.py(토큰·권한), test_signup.py
+supabase/migrations/ 스키마·RLS·가입 트리거 SQL      scripts/migrate.py  마이그레이션 적용
+web/app/            page.tsx(메인), diagnosis/(설문·결과), login/, signup/, mypage/, styles/*.css
+web/proxy.ts        Supabase 세션 갱신, 비로그인 /mypage 접근 시 /login으로
+web/components/     SiteHeader(우측 상단 로그인·마이페이지)·SiteFooter, home/, auth/(LoginForm, SignupForm),
+                    survey/(DiagnosisEntry: 로그인·가입·게스트 선택, SurveyApp, fields), result/, mypage/
+web/lib/            api.ts, auth.ts(useAuth·토큰), supabase/(config·client), storage.ts(localStorage), types.ts, sample.ts, content.ts
 ```
 
 - 웹은 `/api/*`를 `next.config.ts`의 rewrites로 FastAPI(`BIZDNA_API_URL`, 기본 127.0.0.1:8000)에 넘긴다.
@@ -149,8 +154,8 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 - [ ] 수익모델: 기본형 무료·정밀형 유료 vs 기관 판매
 - [x] 화면 기술: Next.js 16 + FastAPI (2026-11-16)
 - [x] DB·인증: Supabase (PostgreSQL + Supabase Auth), 배포: Vercel (2026-11-16)
-- [ ] 로그인 방식: 이메일+비밀번호만 vs 카카오·네이버·구글 소셜 로그인 추가 (11.3)
-- [ ] 비로그인 체험 허용 범위: 기본진단까지 비로그인 허용 vs 처음부터 가입 필수 (11.3)
+- [ ] 로그인 방식: 이메일+비밀번호만 vs 카카오·네이버·구글 소셜 로그인 추가 (11.3). 이메일 인증은 하지 않기로 함 (2026-11-17)
+- [x] 비로그인 체험 허용 범위: **게스트는 전체 진단(기본·정밀·PDF) 허용**, 응답은 브라우저에만 저장하고 마이페이지는 없음 (2026-11-17)
 - [ ] 컨설턴트·운영기관 계정 발급 방식: 관리자 초대만 vs 신청 후 승인 (11.3)
 - [ ] 민감 재무 필드의 추가 암호화(컬럼 단위) 여부 (11.4)
 - [ ] AI 공급자와 전달 데이터 범위
@@ -209,12 +214,13 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 - **API (FastAPI)**: `Authorization: Bearer <access token>`을 받아 Supabase 공개 서명 키(`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`)로 검증한다. 키는 메모리에 캐시하되, 모르는 `kid`가 오면 다시 받는다. 검증한 `sub`가 사용자 ID다.
 - **역할 저장 위치**: 역할(기업·컨설턴트·운영기관·관리자)은 **사용자가 수정할 수 없는 곳**에 둔다. 즉 DB의 `memberships` 테이블이나 Auth의 `app_metadata`에 둔다. `user_metadata`는 사용자가 직접 바꿀 수 있으므로 권한 판단에 쓰지 않는다. 권한은 매 요청마다 DB 기준으로 확인한다.
 - **가입 흐름 (기업 담당자)**:
-  1. 이메일·비밀번호로 가입하고 이메일 인증을 거친다.
+  1. 이메일·비밀번호로 가입한다(이메일 인증 없음, 2026-11-17 결정).
   2. 개인정보 수집·이용 동의와 진단결과 저장 동의를 받는다(`consents`). AI 분석 동의는 따로 받는다.
   3. 기업을 등록하고(FR-02 기업정보), 가입한 사람이 그 기업의 `owner`가 된다.
   4. 진단을 시작한다. 로그인 전에 브라우저에 저장된 응답(`bizdna.survey.v1`)이 있으면 "이 응답을 내 계정으로 가져오기"를 제안한다.
 - **컨설턴트·운영기관·관리자**: 스스로 가입하지 않는다. 관리자가 초대하거나 승인해 역할을 부여한다(9장 미결정 항목).
-- **결정 전까지의 기본값**: 이메일+비밀번호 로그인. 비로그인으로도 기본진단과 결과 보기는 가능하고, 결과 저장·정밀진단·PDF·재진단은 로그인 후에 쓸 수 있다. 소셜 로그인과 비로그인 범위는 9장에서 확정한다.
+- **현재 동작 (2026-11-17)**: 이메일+비밀번호 가입·로그인, **이메일 인증 없음**(사용자 결정). 가입은 브라우저가 아니라 `POST /api/auth/signup`이 Supabase 관리자 API(`SUPABASE_SECRET_KEY`)로 `email_confirm: true` 계정을 만들고, 화면이 바로 `signInWithPassword`로 로그인한다. 그래서 대시보드의 "Confirm email" 설정과 무관하다. 가입 API에는 아직 요청 횟수 제한이 없다(운영 전 Vercel Firewall 등으로 추가 검토). `/diagnosis`에 들어오면 로그인·회원가입·게스트 중 하나를 고른다. 게스트는 전체 진단을 할 수 있지만 응답은 브라우저에만 남는다. 회원은 단계를 넘길 때와 "중간저장" 때 서버에 `draft`로, 기본진단·정밀진단을 마치면 서버가 엔진을 돌려 결과와 버전을 함께 저장한다(`basic_completed`·`full_completed`, 상태는 낮아지지 않음). 마이페이지는 진행 중 회차(이어하기)와 완료 회차(저장 당시 결과 보기, 정밀진단 이어하기, 삭제)를 보여준다. 로그아웃하면 브라우저에 남은 회원 응답을 지운다. 소셜 로그인은 9장 미결정.
+- **동의**: 가입 화면의 필수 동의 2종(개인정보, 결과저장)은 `user_metadata.consents`로 보내고 가입 트리거가 `consents` 테이블로 옮긴다. 문구는 초안(`TERMS_VERSION`)이다. AI 동의는 AI 기능을 만들 때 추가한다.
 - **Auth 설정**: Supabase 대시보드의 Site URL과 Redirect URL에 운영 도메인, `http://localhost:3000`, Vercel 미리보기 주소를 등록한다. Vercel 연동은 미리보기 브랜치의 리다이렉트 URL을 자동으로 만든다. 이메일 발송은 운영 전에 별도 SMTP를 연결한다(기본 발송은 한도가 낮다).
 - **탈퇴·삭제**: 회원 탈퇴 시 개인정보를 삭제한다. 기업 진단 데이터의 보관 기간과 비식별 처리는 개인정보처리방침에 정하고 그대로 구현한다.
 
@@ -229,7 +235,7 @@ web/lib/            api.ts, storage.ts(localStorage), types.ts, sample.ts(그린
 | `company_members` | `company_id`, `user_id`, `role`(owner·member) | 기업 담당자 ↔ 기업 |
 | `consultant_assignments` | `consultant_id`, `company_id`, 기간 | 컨설턴트는 담당 기업만 조회 |
 | `program_enrollments` | `organization_id`(운영기관), `company_id`, 사업명 | 운영기관은 소속 사업 기업만 조회 |
-| `diagnoses` | `company_id`, `phase`(basic·full), `status`, `survey`(jsonb), `result`(jsonb), `model_version`, `questions_version`, `created_by`, 생성·완료 시각 | 진단 회차. 결과와 버전을 함께 저장해 재현 가능하게 한다 |
+| `diagnoses` | `company_id`, `phase`(basic·full), `status`(draft·basic_completed·full_completed), `survey`·`progress`·`result`(jsonb), `model_version`, `questions_version`, `created_by`, 생성·완료 시각 | 진단 회차. 결과와 버전을 함께 저장해 재현 가능하게 한다. **구현됨**: `companies`가 생기기 전까지 권한은 `created_by` 기준, `company_id`는 비어 있음 |
 | `consents` | `user_id`, `company_id`, 종류(개인정보·결과저장·AI), 약관 버전, 동의 시각, 철회 시각 | |
 | `audit_logs` | 누가·언제·무엇을 조회·수정했는지 | 민감 데이터 접근 기록 |
 | (P1) `action_items`, `kpi_records`, `evidence_files` | 90일 실행과제, KPI 실적, 증빙 | |

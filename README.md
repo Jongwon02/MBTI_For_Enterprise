@@ -17,6 +17,16 @@ npm run dev
 
 필요 프로그램: Python 3.12 이상, Node.js 22 이상.
 
+### 회원 기능(Supabase) 로컬 설정
+
+회원가입·로그인·마이페이지는 Supabase가 필요하다. 환경변수가 없으면 게스트 진단만 동작한다.
+
+```bash
+npx vercel@latest env pull web/.env.local --environment development   # NEXT_PUBLIC_SUPABASE_*
+npx vercel@latest env pull api/.env --environment development         # SUPABASE_URL, POSTGRES_URL*
+.venv/Scripts/python scripts/migrate.py                               # supabase/migrations 적용
+```
+
 ## 테스트
 
 ```bash

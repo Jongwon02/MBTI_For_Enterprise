@@ -76,3 +76,33 @@ export interface DiagnosisResult {
   limitations: string[];
   completeness: Record<string, unknown>;
 }
+
+// ---- 회원 진단 회차 (api/bizdna_api/main.py) ----
+
+export type DiagnosisStatus = "draft" | "basic_completed" | "full_completed";
+
+export interface DiagnosisProgress {
+  step: number; maxStep: number; basicDone: boolean; phase: "basic" | "full"; percent: number;
+}
+
+export interface DiagnosisSummary {
+  id: string;
+  company_name: string | null;
+  phase: "basic" | "full";
+  status: DiagnosisStatus;
+  progress: Partial<DiagnosisProgress>;
+  model_version: string | null;
+  questions_version: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  summary: {
+    dna_type: string | null; dna_name: string | null; stage: string | null; stage_name: string | null;
+    total: number | null; grade: string | null;
+  } | null;
+}
+
+export interface DiagnosisRecord extends Omit<DiagnosisSummary, "summary"> {
+  survey: Survey;
+  result: DiagnosisResult | null;
+}

@@ -1,4 +1,4 @@
-"""FR-01 회원가입(이메일 인증 없음). Supabase 관리자 API 호출은 가짜로 바꿔 끼운다."""
+"""FR-01 회원가입(아이디 + 비밀번호, 이메일 인증 없음). Supabase 관리자 API 호출은 가짜로 바꿔 끼운다."""
 import sys
 from pathlib import Path
 
@@ -12,7 +12,7 @@ from bizdna_api import settings, signup as signup_mod  # noqa: E402
 from bizdna_api.main import app  # noqa: E402
 
 client = TestClient(app)
-OK = {"email": "Owner@Example.com ", "password": "abcd1234", "name": " 홍길동 ",
+OK = {"username": " Owner_01 ", "password": "abcd1234", "name": " 홍길동 ",
       "agree_privacy": True, "agree_storage": True, "terms_version": "v-test"}
 
 
@@ -34,14 +34,17 @@ def admin(monkeypatch):
 def test_creates_confirmed_user(admin):
     calls, _ = admin
     r = client.post("/api/auth/signup", json=OK)
-    assert r.status_code == 201 and r.json() == {"id": "u-1", "email": "owner@example.com"}
+    assert r.status_code == 201 and r.json() == {"id": "u-1", "username": "owner_01"}
     p = calls[0]
-    assert p["email_confirm"] is True and p["email"] == "owner@example.com"
-    assert p["user_metadata"] == {"name": "홍길동", "consents": {"privacy": "v-test", "storage": "v-test"}}
+    assert p["email_confirm"] is True and p["email"] == "owner_01@users.bizdna.invalid"
+    assert p["user_metadata"] == {"name": "홍길동", "username": "owner_01",
+                                  "consents": {"privacy": "v-test", "storage": "v-test"}}
 
 
 @pytest.mark.parametrize("change", [
-    {"password": "short1"}, {"email": "not-an-email"}, {"agree_privacy": False}, {"agree_storage": False},
+    {"password": "short1"}, {"username": "abc"}, {"username": "a" * 21}, {"username": "1abcd"},
+    {"username": "ab-cd"}, {"username": "me@example.com"}, {"username": "홍길동1234"},
+    {"agree_privacy": False}, {"agree_storage": False},
 ])
 def test_validation(admin, change):
     calls, _ = admin
@@ -49,11 +52,16 @@ def test_validation(admin, change):
     assert calls == []
 
 
-def test_duplicate_email(admin):
+@pytest.mark.parametrize("name", ["abcd", "a" * 20, "a_1_2"])
+def test_username_boundaries(admin, name):
+    assert client.post("/api/auth/signup", json=OK | {"username": name}).status_code == 201
+
+
+def test_duplicate_username(admin):
     _, reply = admin
     reply.update(status=422, body={"error_code": "email_exists", "msg": "A user with this email address has already been registered"})
     r = client.post("/api/auth/signup", json=OK)
-    assert r.status_code == 409 and "이미 가입" in r.json()["detail"]
+    assert r.status_code == 409 and "이미 사용 중" in r.json()["detail"]
 
 
 def test_not_configured(monkeypatch):

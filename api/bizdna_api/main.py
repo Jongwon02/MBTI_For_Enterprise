@@ -178,7 +178,7 @@ def delete_diagnosis(diagnosis_id: str, user: User = Depends(current_user),
     return Response(status_code=204)
 
 
-# ---- 회원가입 (FR-01, 이메일 인증 없음) -----------------------------------------
+# ---- 회원가입 (FR-01, 아이디 + 비밀번호, 이메일 인증 없음) -----------------------------------------
 @app.post("/api/auth/signup", status_code=201)
 def create_account(req: SignupRequest) -> dict[str, Any]:
     return signup(req)

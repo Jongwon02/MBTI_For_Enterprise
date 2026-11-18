@@ -39,9 +39,32 @@ export async function signOut(): Promise<void> {
   await supabaseBrowser()?.auth.signOut();
 }
 
+// ---- 아이디 로그인 (이메일 인증 없음, 2026-11-18 결정) ----
+// Supabase Auth는 이메일로만 계정을 만들 수 있어 아이디를 내부용 주소로 바꿔 쓴다.
+// API(`api/bizdna_api/signup.py`의 username_to_email)와 규칙이 같아야 하므로 함께 고친다.
+const LOGIN_DOMAIN = "users.bizdna.invalid";
+/** 영문 소문자로 시작, 영문 소문자·숫자·밑줄 4~20자. */
+export const USERNAME_RE = /^[a-z][a-z0-9_]{3,19}$/;
+
+export function normalizeUsername(raw: string): string {
+  return raw.trim().toLowerCase();
+}
+
+export function usernameToEmail(username: string): string {
+  return `${normalizeUsername(username)}@${LOGIN_DOMAIN}`;
+}
+
+/** 화면에 보일 아이디. 내부용 주소는 보여주지 않는다. */
+export function loginId(user: User): string {
+  const meta = typeof user.user_metadata?.username === "string" ? user.user_metadata.username : "";
+  if (meta) return meta;
+  const email = user.email ?? "";
+  return email.endsWith(`@${LOGIN_DOMAIN}`) ? email.slice(0, -LOGIN_DOMAIN.length - 1) : email;
+}
+
 export function displayName(user: User): string {
   const name = typeof user.user_metadata?.name === "string" ? user.user_metadata.name.trim() : "";
-  return name || user.email || "회원";
+  return name || loginId(user) || "회원";
 }
 
 /** 로그인 화면의 next 파라미터. 같은 사이트 경로만 허용한다. */
@@ -53,12 +76,11 @@ export function safeNext(fallback = "/mypage"): string {
 /** Supabase 오류 메시지를 한국어로 바꾼다. */
 export function authErrorMessage(message: string): string {
   const m = message.toLowerCase();
-  if (m.includes("invalid login credentials")) return "이메일 또는 비밀번호가 올바르지 않습니다.";
-  if (m.includes("email not confirmed")) return "이메일 인증을 아직 마치지 않았습니다. 받은 메일의 인증 링크를 눌러 주세요.";
-  if (m.includes("already registered") || m.includes("already been registered")) return "이미 가입된 이메일입니다. 로그인해 주세요.";
+  if (m.includes("invalid login credentials")) return "아이디 또는 비밀번호가 올바르지 않습니다.";
+  if (m.includes("email logins are disabled")) return "로그인 기능이 잠시 꺼져 있습니다. 관리자에게 문의해 주세요.";
+  if (m.includes("already registered") || m.includes("already been registered")) return "이미 사용 중인 아이디입니다.";
   if (m.includes("password") && (m.includes("6 characters") || m.includes("at least") || m.includes("weak")))
     return "비밀번호가 너무 짧거나 쉽습니다. 8자 이상으로 영문·숫자를 섞어 주세요.";
   if (m.includes("rate limit") || m.includes("too many")) return "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
-  if (m.includes("invalid") && m.includes("email")) return "이메일 형식을 확인해 주세요.";
   return "처리하지 못했습니다. 잠시 후 다시 시도해 주세요.";
 }

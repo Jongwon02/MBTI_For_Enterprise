@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authErrorMessage, safeNext } from "@/lib/auth";
+import { authErrorMessage, normalizeUsername, safeNext, USERNAME_RE, usernameToEmail } from "@/lib/auth";
 import { chooseGuest } from "@/lib/storage";
 import { AUTH_ENABLED } from "@/lib/supabase/config";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,9 +19,11 @@ export function LoginForm() {
     e.preventDefault();
     const sb = supabaseBrowser();
     if (!sb) return;
-    setBusy(true);
     setError(null);
-    const { error: err } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+    // 형식이 틀린 아이디는 가입될 수 없으므로 서버에 묻지 않고 같은 안내를 보여준다.
+    if (!USERNAME_RE.test(normalizeUsername(username))) return setError("아이디 또는 비밀번호가 올바르지 않습니다.");
+    setBusy(true);
+    const { error: err } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
     setBusy(false);
     if (err) {
       setError(authErrorMessage(err.message));
@@ -46,8 +48,8 @@ export function LoginForm() {
       {!AUTH_ENABLED && <p className="warn-box" role="status">회원 기능을 준비 중입니다. 지금은 게스트로 진단할 수 있습니다.</p>}
       <form className="auth-form" onSubmit={submit}>
         <label>
-          <span>이메일</span>
-          <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={!AUTH_ENABLED} />
+          <span>아이디</span>
+          <input autoComplete="username" autoCapitalize="none" spellCheck={false} required maxLength={20} value={username} onChange={(e) => setUsername(e.target.value)} disabled={!AUTH_ENABLED} />
         </label>
         <label>
           <span>비밀번호</span>

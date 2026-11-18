@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, deleteDiagnosis, listDiagnoses } from "@/lib/api";
-import { displayName, signOut, useAuth } from "@/lib/auth";
+import { displayName, loginId, signOut, useAuth } from "@/lib/auth";
 import { clearMemberDraft, FIRST_FULL_STEP } from "@/lib/storage";
 import type { DiagnosisSummary } from "@/lib/types";
 
@@ -129,7 +129,7 @@ export function MyPageApp() {
           <div>
             <span className="step-kicker">My Page</span>
             <h2>{displayName(auth.user)} 님</h2>
-            <p className="muted">{auth.user.email} · 가입 {fmt(auth.user.created_at)}</p>
+            <p className="muted">{loginId(auth.user)} · 가입 {fmt(auth.user.created_at)}</p>
           </div>
           <div className="warn-actions">
             <Link className="btn btn-primary btn-sm" href="/diagnosis?new=1">새 진단 시작</Link>

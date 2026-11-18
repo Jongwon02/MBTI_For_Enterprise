@@ -12,7 +12,7 @@ export default function SignupPage() {
         <div className="container">
           <span className="eyebrow">Sign up</span>
           <h1>회원가입</h1>
-          <p>이메일로 가입하고 진단 결과를 내 계정에 보관하세요.</p>
+          <p>아이디와 비밀번호로 가입하고 진단 결과를 내 계정에 보관하세요.</p>
         </div>
       </section>
       <div className="auth-body"><SignupForm /></div>

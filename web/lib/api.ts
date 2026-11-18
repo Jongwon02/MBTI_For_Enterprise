@@ -95,9 +95,9 @@ export async function deleteDiagnosis(id: string): Promise<void> {
   await authed(`/api/diagnoses/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
-/** 회원가입(이메일 인증 없음). 서버가 확인 완료 상태의 계정을 만들고, 화면은 이어서 바로 로그인한다. */
+/** 회원가입(아이디 + 비밀번호, 이메일 인증 없음). 서버가 확인 완료 상태의 계정을 만들고, 화면은 이어서 바로 로그인한다. */
 export async function createAccount(body: {
-  email: string; password: string; name: string; agree_privacy: boolean; agree_storage: boolean; terms_version: string;
+  username: string; password: string; name: string; agree_privacy: boolean; agree_storage: boolean; terms_version: string;
 }): Promise<void> {
   await request("/api/auth/signup", {
     method: "POST",

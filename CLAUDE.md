@@ -17,7 +17,7 @@
 | 구분 | 상태 |
 | --- | --- |
 | 구현됨 | FR-02 기업정보, FR-03 웹 설문(기본/정밀 구분, 중간저장), FR-04 완결성 검증·결측 처리, FR-05~09 엔진, FR-10 결과 대시보드, FR-11 기본형 PDF, FR-13 정밀형 PDF(약 10쪽, 15~20쪽 목표 미달) |
-| 구현됨 (2026-11-17) | FR-01 이메일 회원가입·로그인·로그아웃(Supabase Auth), 게스트 진단, 마이페이지(중간저장 이어하기·최종저장 결과 보기·삭제), FR-12 회원 진단 회차 서버 저장(본인 회차만 접근) |
+| 구현됨 (2026-11-17·18) | FR-01 **아이디+비밀번호** 회원가입·로그인·로그아웃(Supabase Auth, 이메일 인증 없음), 게스트 진단, 마이페이지(중간저장 이어하기·최종저장 결과 보기·삭제), FR-12 회원 진단 회차 서버 저장(본인 회차만 접근) |
 | 없음 | 역할(컨설턴트·운영기관·관리자)·`memberships`·`companies` 테이블, 비밀번호 재설정, 회원 탈퇴, 소셜 로그인, 업종별 문항 분기, FR-14 이후 전부, AI 서술(FR-20) |
 | 초안(사용자 확인 필요) | 성장단계 6문항의 단계별 문구, P01~P12 선택지, P01→goals·P09→flags 매핑 (`questions_v1.json`의 `draft: true`). 기본진단 범위(= DNA+단계+P01/P09)도 임시 결정 |
 
@@ -154,7 +154,7 @@ web/lib/            api.ts, auth.ts(useAuth·토큰), supabase/(config·client),
 - [ ] 수익모델: 기본형 무료·정밀형 유료 vs 기관 판매
 - [x] 화면 기술: Next.js 16 + FastAPI (2026-11-16)
 - [x] DB·인증: Supabase (PostgreSQL + Supabase Auth), 배포: Vercel (2026-11-16)
-- [ ] 로그인 방식: 이메일+비밀번호만 vs 카카오·네이버·구글 소셜 로그인 추가 (11.3). 이메일 인증은 하지 않기로 함 (2026-11-17)
+- [x] 로그인 방식: **아이디 + 비밀번호만, 이메일 인증 없음** (2026-11-17 이메일 인증 안 함, 2026-11-18 이메일 대신 아이디로 결정). 이메일은 받지 않는다. 소셜 로그인은 추가하지 않는다(다시 요청이 있을 때 검토)
 - [x] 비로그인 체험 허용 범위: **게스트는 전체 진단(기본·정밀·PDF) 허용**, 응답은 브라우저에만 저장하고 마이페이지는 없음 (2026-11-17)
 - [ ] 컨설턴트·운영기관 계정 발급 방식: 관리자 초대만 vs 신청 후 승인 (11.3)
 - [ ] 민감 재무 필드의 추가 암호화(컬럼 단위) 여부 (11.4)
@@ -202,7 +202,7 @@ web/lib/            api.ts, auth.ts(useAuth·토큰), supabase/(config·client),
   - 연동되면 `api/.env.example`의 임시 자리(`DATABASE_URL`, `BIZDNA_AUTH_SECRET`)를 위 이름으로 바꾼다. Supabase JWT를 쓰므로 자체 서명 키는 필요 없다.
 - **리전**: 한국 기업 데이터이므로 Supabase는 서울(ap-northeast-2)을 쓰고, Vercel 함수 리전도 서울(icn1)로 맞춘다.
 - **연결 상태 (2026-11-18)**: Vercel Marketplace 연동이 아니라 사용자가 직접 만든 Supabase 프로젝트 `MBTI`(ref `jjjgyzmdqnskxussdhte`)를 수동 연결했다. ⚠ 리전이 **뭄바이(ap-south-1)**라 위 권장과 다르다. 실제 기업 데이터를 넣기 전에 서울 프로젝트로 옮길지 정한다. DB 접속은 풀러 `aws-0-ap-south-1.pooler.supabase.com`(6543 = `POSTGRES_URL`, 5432 = `POSTGRES_URL_NON_POOLING`). 마이그레이션 `20261117000000`은 `scripts/migrate.py`로 적용했다. Vercel 환경변수 6개(`SUPABASE_URL`·`SUPABASE_SECRET_KEY`·`POSTGRES_URL`·`POSTGRES_URL_NON_POOLING`·`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`)는 **Production에만** 등록했다. 프로젝트가 하나뿐이어서, 미리보기는 회원 기능 없이 게스트 진단만 된다. 로컬 `api/.env`에는 원본 값 `SUPABASE_DB_PASSWORD`도 있다(git 제외).
-- **Auth 설정 주의**: Sign In / Providers의 **Email provider는 켜고 Confirm email만 끈다.** Email provider를 끄면 가입(관리자 API)은 되지만 로그인이 `email_provider_disabled`(422)로 막힌다(2026-11-18 운영에서 확인).
+- **Auth 설정 주의**: Sign In / Providers의 **Email provider는 켜고 Confirm email만 끈다.** 아이디 로그인도 내부적으로는 Email provider(내부용 주소)를 쓰기 때문이다. Email provider를 끄면 가입(관리자 API)은 되지만 로그인이 `email_provider_disabled`(422)로 막힌다(2026-11-18 운영에서 확인).
 - **마이그레이션**: 스키마·RLS 정책·트리거는 `supabase/migrations/*.sql`에 SQL로 남긴다(Supabase CLI). 대시보드에서 손으로 바꾼 내용은 반드시 마이그레이션 파일로 옮긴다. Alembic은 쓰지 않는다.
 - **RLS 필수**: `public` 스키마의 테이블은 공개 키(publishable key)로 Data API를 통해 접근될 수 있다. 그래서 **모든 테이블에 RLS를 켠다.** 정책 없이 RLS만 켜 두면 브라우저의 직접 접근이 막히고, FastAPI는 서버 전용 DB 연결로 접근한다. 정책은 "본인 기업만 조회"처럼 6장 권한과 같은 규칙을 이중 방어로 추가한다.
 - **API의 DB 연결**: FastAPI는 `POSTGRES_URL`(풀링 연결)을 쓴다. 서버리스 환경이므로 연결을 짧게 쓰고, 트랜잭션 풀러를 쓸 때는 prepared statement를 끈다.
@@ -216,14 +216,15 @@ web/lib/            api.ts, auth.ts(useAuth·토큰), supabase/(config·client),
 - **API (FastAPI)**: `Authorization: Bearer <access token>`을 받아 Supabase 공개 서명 키(`{SUPABASE_URL}/auth/v1/.well-known/jwks.json`)로 검증한다. 키는 메모리에 캐시하되, 모르는 `kid`가 오면 다시 받는다. 검증한 `sub`가 사용자 ID다.
 - **역할 저장 위치**: 역할(기업·컨설턴트·운영기관·관리자)은 **사용자가 수정할 수 없는 곳**에 둔다. 즉 DB의 `memberships` 테이블이나 Auth의 `app_metadata`에 둔다. `user_metadata`는 사용자가 직접 바꿀 수 있으므로 권한 판단에 쓰지 않는다. 권한은 매 요청마다 DB 기준으로 확인한다.
 - **가입 흐름 (기업 담당자)**:
-  1. 이메일·비밀번호로 가입한다(이메일 인증 없음, 2026-11-17 결정).
+  1. **아이디·비밀번호로 가입한다. 이메일은 받지 않고 이메일 인증도 없다**(2026-11-18 결정).
   2. 개인정보 수집·이용 동의와 진단결과 저장 동의를 받는다(`consents`). AI 분석 동의는 따로 받는다.
   3. 기업을 등록하고(FR-02 기업정보), 가입한 사람이 그 기업의 `owner`가 된다.
   4. 진단을 시작한다. 로그인 전에 브라우저에 저장된 응답(`bizdna.survey.v1`)이 있으면 "이 응답을 내 계정으로 가져오기"를 제안한다.
 - **컨설턴트·운영기관·관리자**: 스스로 가입하지 않는다. 관리자가 초대하거나 승인해 역할을 부여한다(9장 미결정 항목).
-- **현재 동작 (2026-11-17)**: 이메일+비밀번호 가입·로그인, **이메일 인증 없음**(사용자 결정). 가입은 브라우저가 아니라 `POST /api/auth/signup`이 Supabase 관리자 API(`SUPABASE_SECRET_KEY`)로 `email_confirm: true` 계정을 만들고, 화면이 바로 `signInWithPassword`로 로그인한다. 그래서 대시보드의 "Confirm email" 설정과 무관하다. 가입 API에는 아직 요청 횟수 제한이 없다(운영 전 Vercel Firewall 등으로 추가 검토). `/diagnosis`에 들어오면 로그인·회원가입·게스트 중 하나를 고른다. 게스트는 전체 진단을 할 수 있지만 응답은 브라우저에만 남는다. 회원은 단계를 넘길 때와 "중간저장" 때 서버에 `draft`로, 기본진단·정밀진단을 마치면 서버가 엔진을 돌려 결과와 버전을 함께 저장한다(`basic_completed`·`full_completed`, 상태는 낮아지지 않음). 마이페이지는 진행 중 회차(이어하기)와 완료 회차(저장 당시 결과 보기, 정밀진단 이어하기, 삭제)를 보여준다. 로그아웃하면 브라우저에 남은 회원 응답을 지운다. 소셜 로그인은 9장 미결정.
+- **아이디 로그인 (2026-11-18 결정, 반드시 지킬 것)**: 가입·로그인은 **아이디 + 비밀번호만** 쓴다. **이메일 입력·이메일 인증·인증 메일 발송·이메일 기반 비밀번호 재설정을 만들지 않는다.** Supabase Auth는 이메일로만 계정을 만들 수 있으므로 아이디를 내부용 주소 `{아이디}@users.bizdna.invalid`로 바꿔 쓴다(`.invalid`는 메일이 가지 않는 예약 도메인). 이 주소는 화면에 보여주지 않고 아이디만 보여준다(`loginId`). 아이디 규칙은 영문 소문자로 시작하는 영문 소문자·숫자·밑줄 4~20자이고, 입력은 소문자로 바꾼다. 규칙과 도메인은 `api/bizdna_api/signup.py`(`USERNAME_RE`, `LOGIN_DOMAIN`)와 `web/lib/auth.ts`(`USERNAME_RE`, `usernameToEmail`) 두 곳에 있으므로 함께 고친다. 아이디는 `user_metadata.username`에도 넣지만 표시용이며 권한 판단에 쓰지 않는다. 비밀번호를 잊은 경우의 재설정은 메일 없이 할 방법(관리자 재설정 등)을 따로 정해야 한다(미구현).
+- **현재 동작 (2026-11-18)**: 아이디+비밀번호 가입·로그인, **이메일 인증 없음**(사용자 결정). 가입은 브라우저가 아니라 `POST /api/auth/signup`이 Supabase 관리자 API(`SUPABASE_SECRET_KEY`)로 `email_confirm: true` 계정을 만들고, 화면이 바로 `signInWithPassword`로 로그인한다. 그래서 대시보드의 "Confirm email" 설정과 무관하다. 가입 API에는 아직 요청 횟수 제한이 없다(운영 전 Vercel Firewall 등으로 추가 검토). `/diagnosis`에 들어오면 로그인·회원가입·게스트 중 하나를 고른다. 게스트는 전체 진단을 할 수 있지만 응답은 브라우저에만 남는다. 회원은 단계를 넘길 때와 "중간저장" 때 서버에 `draft`로, 기본진단·정밀진단을 마치면 서버가 엔진을 돌려 결과와 버전을 함께 저장한다(`basic_completed`·`full_completed`, 상태는 낮아지지 않음). 마이페이지는 진행 중 회차(이어하기)와 완료 회차(저장 당시 결과 보기, 정밀진단 이어하기, 삭제)를 보여준다. 로그아웃하면 브라우저에 남은 회원 응답을 지운다. 소셜 로그인은 하지 않는다(9장).
 - **동의**: 가입 화면의 필수 동의 2종(개인정보, 결과저장)은 `user_metadata.consents`로 보내고 가입 트리거가 `consents` 테이블로 옮긴다. 문구는 초안(`TERMS_VERSION`)이다. AI 동의는 AI 기능을 만들 때 추가한다.
-- **Auth 설정**: Supabase 대시보드의 Site URL과 Redirect URL에 운영 도메인, `http://localhost:3000`, Vercel 미리보기 주소를 등록한다. Vercel 연동은 미리보기 브랜치의 리다이렉트 URL을 자동으로 만든다. 이메일 발송은 운영 전에 별도 SMTP를 연결한다(기본 발송은 한도가 낮다).
+- **Auth 설정**: Supabase 대시보드의 Site URL과 Redirect URL에 운영 도메인, `http://localhost:3000`, Vercel 미리보기 주소를 등록한다. Vercel 연동은 미리보기 브랜치의 리다이렉트 URL을 자동으로 만든다. 아이디 로그인이라 메일을 보내지 않으므로 SMTP는 필요 없다.
 - **탈퇴·삭제**: 회원 탈퇴 시 개인정보를 삭제한다. 기업 진단 데이터의 보관 기간과 비식별 처리는 개인정보처리방침에 정하고 그대로 구현한다.
 
 ### 11.4 데이터 모델 (PRD 11장 "저장할 데이터" 기준, 초안)

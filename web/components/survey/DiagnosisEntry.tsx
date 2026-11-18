@@ -98,7 +98,7 @@ export function DiagnosisEntry() {
               <b>로그인</b><span>이미 회원이면 로그인하고 시작합니다.</span>
             </Link>
             <Link className="gate-option" href={`/signup?next=${next}`}>
-              <b>회원가입</b><span>이메일로 가입하고 진단 결과를 계정에 저장합니다.</span>
+              <b>회원가입</b><span>아이디와 비밀번호로 가입하고 진단 결과를 계정에 저장합니다.</span>
             </Link>
             <button className="gate-option" onClick={() => { chooseGuest(); setChoice({ kind: "survey", initial: null }); }}>
               <b>게스트로 진단하기</b><span>가입 없이 바로 시작합니다. 응답은 이 브라우저에만 저장되고 마이페이지는 쓸 수 없습니다.</span>

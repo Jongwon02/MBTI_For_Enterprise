@@ -1,4 +1,5 @@
 import { accessToken } from "./auth";
+import type { AdminFactDetail, AdminFactPage, AdminFilters, AdminOverview } from "./admin-types";
 import type { DiagnosisProgress, DiagnosisRecord, DiagnosisResult, DiagnosisSummary, Questions, Survey } from "./types";
 
 // /api/* 요청은 next.config.ts의 rewrites로 FastAPI 서버(기본 127.0.0.1:8000)에 전달된다.
@@ -97,11 +98,49 @@ export async function deleteDiagnosis(id: string): Promise<void> {
 
 /** 회원가입(아이디 + 비밀번호, 이메일 인증 없음). 서버가 확인 완료 상태의 계정을 만들고, 화면은 이어서 바로 로그인한다. */
 export async function createAccount(body: {
-  username: string; password: string; name: string; agree_privacy: boolean; agree_storage: boolean; terms_version: string;
+  username: string; password: string; name: string;
+  agree_privacy: boolean; agree_storage: boolean; agree_analytics: boolean; terms_version: string;
 }): Promise<void> {
   await request("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+// ---- 내 정보·관리자 (docs/admin.md). 관리자 API는 서버가 요청마다 관리자인지 다시 확인한다. ----
+
+export async function getMe(): Promise<{ id: string; is_admin: boolean }> {
+  return (await authed("/api/me")).json();
+}
+
+function adminQuery(filters: AdminFilters, extra: Record<string, string | number> = {}): string {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries({ ...filters, ...extra })) if (v !== "" && v != null) q.set(k, String(v));
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+export async function adminOverview(filters: AdminFilters): Promise<AdminOverview> {
+  return (await authed(`/api/admin/overview${adminQuery(filters)}`)).json();
+}
+
+export async function adminFacts(filters: AdminFilters, offset: number, limit: number): Promise<AdminFactPage> {
+  return (await authed(`/api/admin/facts${adminQuery(filters, { offset, limit })}`)).json();
+}
+
+export async function adminFact(id: string): Promise<AdminFactDetail> {
+  return (await authed(`/api/admin/facts/${encodeURIComponent(id)}`)).json();
+}
+
+export async function adminExportCsv(filters: AdminFilters): Promise<void> {
+  const blob = await (await authed(`/api/admin/export.csv${adminQuery(filters)}`)).blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `bizdna_facts_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }

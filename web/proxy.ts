@@ -21,7 +21,9 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims && request.nextUrl.pathname.startsWith("/mypage")) {
+  // 로그인이 필요한 화면. 관리자 여부는 화면과 API가 따로 확인한다(docs/admin.md).
+  const protectedPath = ["/mypage", "/admin"].some((p) => request.nextUrl.pathname.startsWith(p));
+  if (!data?.claims && protectedPath) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = `?next=${encodeURIComponent(request.nextUrl.pathname)}`;

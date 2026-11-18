@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 import { LogoMark } from "./Logo";
 
 const NAV = [
@@ -17,6 +18,7 @@ export function SiteHeader({ active }: { active?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const auth = useAuth();
+  const isAdmin = useIsAdmin();
   // 로그인 상태를 확인하기 전에는 계정 링크를 비워 둔다(로그인 ↔ 마이페이지 깜빡임 방지).
   const account = auth.status === "signed-in"
     ? { href: "/mypage", label: "마이페이지" }
@@ -44,6 +46,12 @@ export function SiteHeader({ active }: { active?: string }) {
           ))}
         </nav>
         <div className="header-right">
+          {isAdmin && (
+            <Link className={`header-account header-admin${active === "Admin" ? " active" : ""}`} href="/admin">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+              <span>관리자</span>
+            </Link>
+          )}
           {account ? (
             <Link className={`header-account${active === "MyPage" ? " active" : ""}`} href={account.href}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
@@ -67,6 +75,7 @@ export function SiteHeader({ active }: { active?: string }) {
           {NAV.map((n) => (
             <Link key={n.label} href={n.href}>{n.label} <span>{n.sub}</span></Link>
           ))}
+          {isAdmin && <Link href="/admin">관리자 <span>경영자 데이터 탐색</span></Link>}
           {account && <Link href={account.href}>{account.label} <span>{auth.status === "signed-in" ? "내 진단 보기" : "회원가입·로그인"}</span></Link>}
           <Link className="mobile-cta" href="/diagnosis">진단 시작</Link>
         </nav>

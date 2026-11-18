@@ -13,7 +13,7 @@ from bizdna_api.main import app  # noqa: E402
 
 client = TestClient(app)
 OK = {"username": " Owner_01 ", "password": "abcd1234", "name": " 홍길동 ",
-      "agree_privacy": True, "agree_storage": True, "terms_version": "v-test"}
+      "agree_privacy": True, "agree_storage": True, "agree_analytics": True, "terms_version": "v-test"}
 
 
 @pytest.fixture()
@@ -38,13 +38,13 @@ def test_creates_confirmed_user(admin):
     p = calls[0]
     assert p["email_confirm"] is True and p["email"] == "owner_01@users.bizdna.invalid"
     assert p["user_metadata"] == {"name": "홍길동", "username": "owner_01",
-                                  "consents": {"privacy": "v-test", "storage": "v-test"}}
+                                  "consents": {"privacy": "v-test", "storage": "v-test", "analytics": "v-test"}}
 
 
 @pytest.mark.parametrize("change", [
     {"password": "short1"}, {"username": "abc"}, {"username": "a" * 21}, {"username": "1abcd"},
     {"username": "ab-cd"}, {"username": "me@example.com"}, {"username": "홍길동1234"},
-    {"agree_privacy": False}, {"agree_storage": False},
+    {"agree_privacy": False}, {"agree_storage": False}, {"agree_analytics": False},
 ])
 def test_validation(admin, change):
     calls, _ = admin

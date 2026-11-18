@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "engine"))
 from bizdna import DiagnosticError, completeness, diagnose_survey, load_questions  # noqa: E402
 
 from . import settings  # noqa: E402  (.env를 report보다 먼저 읽는다)
+from .admin import router as admin_router  # noqa: E402
 from .auth import User, current_user  # noqa: E402
 from .report import build_report  # noqa: E402
 from .signup import SignupRequest, signup  # noqa: E402
@@ -31,6 +32,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+app.include_router(admin_router)
 
 
 class SurveyRequest(BaseModel):
@@ -132,8 +134,9 @@ def _fields(req: DiagnosisSave, current_status: str = "draft") -> dict[str, Any]
 
 
 @app.get("/api/me")
-def me(user: User = Depends(current_user)) -> dict[str, Any]:
-    return {"id": user.id, "email": user.email}
+def me(user: User = Depends(current_user), store: DiagnosisStore = Depends(get_store)) -> dict[str, Any]:
+    # is_admin은 화면에서 관리자 메뉴를 보일지 정하는 데만 쓴다. 관리자 API는 요청마다 다시 확인한다.
+    return {"id": user.id, "email": user.email, "is_admin": store.is_admin(user.id)}
 
 
 @app.get("/api/diagnoses")

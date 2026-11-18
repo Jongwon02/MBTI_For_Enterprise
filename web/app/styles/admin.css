@@ -1,0 +1,127 @@
+/* 관리자: 경영자 데이터 탐색(docs/admin.md). docs/design-system.md 서브페이지 패턴, 마이페이지와 같은 배경·카드 */
+
+.header-admin svg { stroke-linejoin: round; }
+
+.admin-body { background: var(--gray-bg); padding: 40px 24px 96px; }
+.admin-wrap { width: min(1280px, 100%); margin: 0 auto; display: grid; gap: 20px; animation: pageEnterUp .72s var(--ease) .12s both; }
+
+/* ---------- 필터 (한 줄) ---------- */
+.admin-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; padding: 20px 24px; }
+.admin-filters > label { display: grid; gap: 5px; min-width: 120px; }
+.admin-filters > label > span { font-size: .78rem; font-weight: 800; color: var(--slate); }
+.admin-filters select, .admin-filters input[type="date"] {
+  height: 40px; padding: 0 10px; border-radius: 12px; border: 1px solid rgba(0, 0, 0, .14);
+  background: var(--white); color: var(--ink); font: inherit; font-size: 14px;
+}
+.admin-filter-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-left: auto; }
+.live-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 700; color: var(--slate-dark); }
+.admin-meta { color: var(--gray-text); font-size: .85rem; line-height: 1.6; }
+
+/* ---------- 요약 숫자 ---------- */
+.admin-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.6fr); gap: 12px; }
+.kpi { background: var(--white); border-radius: 22px; padding: 18px 20px; display: grid; gap: 6px; }
+.kpi span { color: var(--slate); font-size: .8rem; font-weight: 700; }
+.kpi small { color: var(--gray-text); font-weight: 600; }
+.kpi b { font-size: 1.9rem; font-weight: 800; letter-spacing: -.04em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.kpi .kpi-funnel { font-size: 1.4rem; }
+
+/* ---------- 차트 카드 ---------- */
+.admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-card { display: grid; gap: 14px; align-content: start; padding: 24px; }
+.admin-card.wide { grid-column: 1 / -1; }
+.admin-card h3, .admin-table-head h3 { font-size: 1.1rem; font-weight: 800; letter-spacing: -.03em; }
+.admin-card h3 small, .admin-table-head h3 small { color: var(--gray-text); font-weight: 600; font-size: .82rem; margin-left: 6px; }
+.chart-empty { color: var(--gray-text); font-size: .9rem; padding: 12px 0; text-align: center; }
+.chart-note { color: var(--gray-text); font-size: .78rem; line-height: 1.6; }
+.chart-tip {
+  display: grid; gap: 2px; padding: 8px 12px; border-radius: 10px; background: var(--white);
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, .3); border: 1px solid var(--line); font-size: 12px;
+}
+.chart-tip b { color: var(--ink); }
+.chart-tip span { color: var(--slate); }
+
+/* 성향 4축: 가운데에서 갈라지는 막대 */
+.axis-dirs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 32px; }
+.axis-dirs .chart-note { grid-column: 1 / -1; }
+.axis-dir { display: grid; gap: 8px; }
+.axis-dir-head { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: baseline; font-size: .82rem; color: var(--slate); }
+.axis-dir-head strong { color: var(--ink); font-size: .95rem; font-weight: 800; }
+.axis-dir-head .axis-a { text-align: right; }
+.axis-track { position: relative; height: 14px; border-radius: 4px; background: #eef1f5; }
+.axis-track.small { height: 10px; }
+.axis-track i { position: absolute; top: 0; bottom: 0; }
+.axis-zone { left: 40%; width: 20%; background: #dde2e8; }
+.axis-mid { left: calc(50% - 1px); width: 2px; background: #9aa3ae; }
+.axis-bar { transition: width .4s var(--ease), left .4s var(--ease); }
+.axis-dir-foot { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--slate); }
+.axis-dir-foot b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.axis-dir-foot .muted { color: var(--gray-text); }
+
+/* 역량 분포: p25~p75 띠 + 중앙값 */
+.domain-ranges { display: grid; gap: 10px; }
+.domain-range { display: grid; grid-template-columns: 170px 1fr 48px; gap: 12px; align-items: center; font-size: .85rem; }
+.dr-label { color: var(--slate-dark); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dr-track { position: relative; height: 14px; border-radius: 4px; background: #eef1f5; }
+.dr-band { position: absolute; top: 0; bottom: 0; background: rgba(0, 113, 227, .28); border-radius: 4px; }
+.dr-mid { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; background: var(--blue); border-radius: 2px; }
+.dr-value { text-align: right; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+.dr-scale { position: relative; height: 14px; font-size: .72rem; color: var(--gray-text); }
+.dr-scale span { position: absolute; transform: translateX(-50%); }
+
+/* ---------- 회차 목록 ---------- */
+.admin-table-wrap { display: grid; gap: 12px; padding: 24px; }
+.admin-table-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pager { display: flex; align-items: center; gap: 12px; font-size: .85rem; color: var(--slate); }
+.pager .text-btn:disabled { opacity: .35; cursor: default; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: .82rem; white-space: nowrap; }
+.admin-table th { text-align: left; color: var(--slate); font-weight: 800; padding: 8px 10px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--white); }
+.admin-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--slate-dark); }
+.admin-table tbody tr { cursor: pointer; transition: background .15s ease; }
+.admin-table tbody tr:hover, .admin-table tbody tr:focus-visible { background: #f2f7fd; outline: none; }
+.admin-table tbody tr.selected { background: var(--chip-bg); }
+.admin-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.admin-table .pos { color: #0058b0; font-weight: 700; }
+.admin-table .neg { color: #a1360a; font-weight: 700; }
+.admin-table .mono { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--gray-text); }
+
+/* ---------- 회차 상세 ---------- */
+.fact-detail { display: grid; gap: 14px; padding: 28px; scroll-margin-top: 96px; }
+.fd-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.fd-head h3 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.04em; }
+.fd-head h3 small { font-size: 1rem; color: var(--slate); font-weight: 700; margin-left: 6px; }
+.fd-head .muted { color: var(--gray-text); font-size: .85rem; margin-top: 4px; }
+.fact-detail h4 { font-size: .95rem; font-weight: 800; margin-top: 8px; }
+.fd-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 20px; }
+.fd-grid div { display: grid; gap: 2px; }
+.fd-grid dt { font-size: .76rem; color: var(--gray-text); font-weight: 700; }
+.fd-grid dd { font-size: .92rem; color: var(--ink); font-weight: 700; }
+.fd-axes { display: grid; gap: 10px; max-width: 640px; }
+.fd-axis { display: grid; grid-template-columns: 20px 1fr 20px 60px; gap: 10px; align-items: center; font-size: .85rem; }
+.fd-axis-v { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.fd-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fd-chips span { padding: 6px 12px; border-radius: 999px; background: var(--gray-bg); font-size: .82rem; color: var(--slate-dark); }
+.fd-chips span.warn { background: var(--warn-bg); color: #7c2d12; }
+.fd-chips b { color: var(--ink); margin-left: 4px; }
+.fd-domains { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 28px; }
+.fd-domains > div { display: grid; grid-template-columns: 20px 1fr 44px; gap: 10px; align-items: center; font-size: .85rem; }
+.fd-domains b { text-align: right; font-variant-numeric: tabular-nums; }
+.fd-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.fd-table th, .fd-table td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.fd-table th { color: var(--slate); font-weight: 800; }
+.fd-table tr.deferred td { color: var(--gray-text); }
+.fd-raw summary { cursor: pointer; font-size: .85rem; font-weight: 700; color: var(--slate); }
+.fd-raw pre { margin-top: 8px; padding: 14px; border-radius: 14px; background: var(--gray-bg); font-size: .78rem; overflow-x: auto; }
+
+@media (max-width: 1100px) {
+  .admin-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-kpis .kpi:last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .admin-body { padding: 28px 16px 72px; }
+  .admin-grid, .axis-dirs, .fd-domains { grid-template-columns: 1fr; }
+  .fd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-filter-actions { margin-left: 0; }
+  .domain-range { grid-template-columns: 110px 1fr 40px; }
+  .admin-card, .admin-table-wrap, .fact-detail { padding: 20px 16px; }
+}

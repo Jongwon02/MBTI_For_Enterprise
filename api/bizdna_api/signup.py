@@ -32,6 +32,7 @@ class SignupRequest(BaseModel):
     name: str = Field(default="", max_length=40)
     agree_privacy: bool = False
     agree_storage: bool = False
+    agree_analytics: bool = False  # 통계 활용 동의. 2026-11-18 결정으로 가입 필수 동의에 포함한다(CLAUDE.md 12.2)
     terms_version: str = Field(max_length=40)
 
 
@@ -67,7 +68,7 @@ def signup(req: SignupRequest) -> dict[str, Any]:
         raise HTTPException(status_code=422, detail="아이디는 영문 소문자로 시작하는 4~20자(영문 소문자·숫자·밑줄)로 정해 주세요.")
     if len(req.password) < MIN_PASSWORD:
         raise HTTPException(status_code=422, detail=f"비밀번호는 {MIN_PASSWORD}자 이상이어야 합니다.")
-    if not (req.agree_privacy and req.agree_storage):
+    if not (req.agree_privacy and req.agree_storage and req.agree_analytics):
         raise HTTPException(status_code=422, detail="필수 동의 항목에 동의해야 가입할 수 있습니다.")
 
     status, body = _admin_create_user({
@@ -77,7 +78,8 @@ def signup(req: SignupRequest) -> dict[str, Any]:
         "user_metadata": {
             "name": req.name.strip(),
             "username": username,
-            "consents": {"privacy": req.terms_version, "storage": req.terms_version},
+            "consents": {"privacy": req.terms_version, "storage": req.terms_version,
+                         "analytics": req.terms_version},
         },
     })
     if status in (200, 201):

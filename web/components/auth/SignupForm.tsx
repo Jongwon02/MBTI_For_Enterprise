@@ -9,7 +9,7 @@ import { AUTH_ENABLED } from "@/lib/supabase/config";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 // 동의 문구 버전. 문구를 바꾸면 값을 바꾼다(가입 시 consents 테이블에 함께 기록됨).
-const TERMS_VERSION = "2026-11-17-draft";
+const TERMS_VERSION = "2026-11-18-draft";
 
 export function SignupForm() {
   const router = useRouter();
@@ -19,6 +19,7 @@ export function SignupForm() {
   const [confirm, setConfirm] = useState("");
   const [privacy, setPrivacy] = useState(false);
   const [storage, setStorage] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +30,7 @@ export function SignupForm() {
     if (!USERNAME_RE.test(id)) return setError("아이디는 영문 소문자로 시작하는 4~20자(영문 소문자·숫자·밑줄)로 정해 주세요.");
     if (password.length < 8) return setError("비밀번호는 8자 이상이어야 합니다.");
     if (password !== confirm) return setError("비밀번호 확인이 일치하지 않습니다.");
-    if (!privacy || !storage) return setError("필수 동의 항목에 동의해야 가입할 수 있습니다.");
+    if (!privacy || !storage || !analytics) return setError("필수 동의 항목에 동의해야 가입할 수 있습니다.");
     const sb = supabaseBrowser();
     if (!sb) return;
     setBusy(true);
@@ -37,7 +38,7 @@ export function SignupForm() {
       // 이메일 인증 없이 가입(서버가 확인 완료 계정을 만든다) → 바로 로그인
       await createAccount({
         username: id, password, name: name.trim(),
-        agree_privacy: privacy, agree_storage: storage, terms_version: TERMS_VERSION,
+        agree_privacy: privacy, agree_storage: storage, agree_analytics: analytics, terms_version: TERMS_VERSION,
       });
     } catch (err) {
       setBusy(false);
@@ -85,6 +86,10 @@ export function SignupForm() {
           <label className="check">
             <input type="checkbox" checked={storage} onChange={(e) => setStorage(e.target.checked)} />
             <span><b>[필수]</b> 진단결과 저장 동의 — 입력한 기업정보·응답·진단결과를 내 계정에 저장해 마이페이지에서 보여줍니다.</span>
+          </label>
+          <label className="check">
+            <input type="checkbox" checked={analytics} onChange={(e) => setAnalytics(e.target.checked)} />
+            <span><b>[필수]</b> 통계 활용 동의 — 진단결과에서 기업명·이름·아이디를 뺀 값(업종·규모·경영자 성향·역량 점수 등)을 가명으로 모아 진단모형 검증과 유사기업 비교 통계에 사용합니다. 계정이나 진단을 삭제해도 이 통계 자료는 누구의 것인지 알 수 없는 상태로 남습니다.</span>
           </label>
           <p className="auth-note">동의 문구는 초안입니다. 개인정보처리방침이 확정되면 바뀔 수 있습니다.</p>
         </fieldset>

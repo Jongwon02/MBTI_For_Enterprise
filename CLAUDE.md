@@ -201,6 +201,8 @@ web/lib/            api.ts, auth.ts(useAuth·토큰), supabase/(config·client),
   - 로컬에서는 `vercel env pull`로 받는다. **`SUPABASE_SECRET_KEY`와 `POSTGRES_*`는 api 쪽에서만 쓴다.** web 코드나 `NEXT_PUBLIC_` 변수에 넣지 않는다.
   - 연동되면 `api/.env.example`의 임시 자리(`DATABASE_URL`, `BIZDNA_AUTH_SECRET`)를 위 이름으로 바꾼다. Supabase JWT를 쓰므로 자체 서명 키는 필요 없다.
 - **리전**: 한국 기업 데이터이므로 Supabase는 서울(ap-northeast-2)을 쓰고, Vercel 함수 리전도 서울(icn1)로 맞춘다.
+- **연결 상태 (2026-11-18)**: Vercel Marketplace 연동이 아니라 사용자가 직접 만든 Supabase 프로젝트 `MBTI`(ref `jjjgyzmdqnskxussdhte`)를 수동 연결했다. ⚠ 리전이 **뭄바이(ap-south-1)**라 위 권장과 다르다. 실제 기업 데이터를 넣기 전에 서울 프로젝트로 옮길지 정한다. DB 접속은 풀러 `aws-0-ap-south-1.pooler.supabase.com`(6543 = `POSTGRES_URL`, 5432 = `POSTGRES_URL_NON_POOLING`). 마이그레이션 `20261117000000`은 `scripts/migrate.py`로 적용했다. Vercel 환경변수 6개(`SUPABASE_URL`·`SUPABASE_SECRET_KEY`·`POSTGRES_URL`·`POSTGRES_URL_NON_POOLING`·`NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`)는 **Production에만** 등록했다. 프로젝트가 하나뿐이어서, 미리보기는 회원 기능 없이 게스트 진단만 된다. 로컬 `api/.env`에는 원본 값 `SUPABASE_DB_PASSWORD`도 있다(git 제외).
+- **Auth 설정 주의**: Sign In / Providers의 **Email provider는 켜고 Confirm email만 끈다.** Email provider를 끄면 가입(관리자 API)은 되지만 로그인이 `email_provider_disabled`(422)로 막힌다(2026-11-18 운영에서 확인).
 - **마이그레이션**: 스키마·RLS 정책·트리거는 `supabase/migrations/*.sql`에 SQL로 남긴다(Supabase CLI). 대시보드에서 손으로 바꾼 내용은 반드시 마이그레이션 파일로 옮긴다. Alembic은 쓰지 않는다.
 - **RLS 필수**: `public` 스키마의 테이블은 공개 키(publishable key)로 Data API를 통해 접근될 수 있다. 그래서 **모든 테이블에 RLS를 켠다.** 정책 없이 RLS만 켜 두면 브라우저의 직접 접근이 막히고, FastAPI는 서버 전용 DB 연결로 접근한다. 정책은 "본인 기업만 조회"처럼 6장 권한과 같은 규칙을 이중 방어로 추가한다.
 - **API의 DB 연결**: FastAPI는 `POSTGRES_URL`(풀링 연결)을 쓴다. 서버리스 환경이므로 연결을 짧게 쓰고, 트랜잭션 풀러를 쓸 때는 prepared statement를 끈다.

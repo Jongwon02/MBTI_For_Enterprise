@@ -1,91 +1,92 @@
-# 관리자 계정과 경영자 데이터 탐색
+# Admin accounts and manager-data explorer
 
-> 2026-11-18 구현. 수집 설계의 정본은 `CLAUDE.md` 12장이다. 이 문서는 관리자 계정을 만들고 화면을 쓰는 방법, 그리고 구현에서 정한 세부 사항을 적는다.
+> Implemented 2026-11-18. The collection design is authoritative in `CLAUDE.md` section 12. This document covers creating admin accounts, using the screen, and implementation details.
 
-## 1. 한눈에 보기
+## 1. At a glance
 
-| 항목 | 내용 |
+| Item | Details |
 | --- | --- |
-| 화면 | `/admin` (관리자로 로그인하면 우측 상단에 **관리자** 메뉴가 생긴다) |
-| 관리자 계정 | 아이디 `whoami` (2026-11-18 생성). 비밀번호는 저장소에 두지 않는다 |
-| 보는 데이터 | 통계 활용에 동의한 회원의 **최종저장 회차**를 가명으로 모은 분석 저장소(`analytics.*`) |
-| 보이지 않는 것 | 기업명, 담당자 이름, 아이디, 연락처, 자유서술, 원본 회차 ID. 분석 저장소에 애초에 저장하지 않는다 |
-| 실시간 | 화면을 열어 두면 15초마다 다시 불러온다(탭이 보일 때만). "실시간 갱신"을 끄면 멈추고, "새로고침"으로 즉시 갱신한다 |
-| 기록 | 집계·목록·상세 조회와 CSV 내보내기는 매번 `private.audit_logs`에 남는다(누가, 언제, 어떤 필터로, 몇 건) |
+| Screen | `/admin` (an admin who is logged in sees a **관리자** link at the top right) |
+| Admin account | Username `whoami` (created 2026-11-18). The password is never stored in the repo |
+| Data shown | The analytics store (`analytics.*`): **final-saved rounds** of members who gave statistical-use consent, pseudonymized |
+| Never shown | Company name, representative name, username, contact details, free text, source round ID. They are not stored in the analytics store at all |
+| Live refresh | While open, the screen reloads every 15 seconds (only when the tab is visible). Uncheck "실시간 갱신" to stop; "새로고침" refreshes immediately |
+| Audit | Every aggregate/list/detail view and CSV export is written to `private.audit_logs` (who, when, which filters, how many rows) |
 
-## 2. 관리자 계정 만들기·회수
+## 2. Creating and revoking admins
 
-관리자는 웹에서 스스로 가입할 수 없다. 권한은 DB의 `public.memberships`(`role = 'admin'`)에 있고, 사용자가 고칠 수 있는 `user_metadata`로는 판단하지 않는다. API는 **요청마다** 이 표를 다시 확인한다.
+Admins cannot sign up on the web. The permission lives in the DB table `public.memberships` (`role = 'admin'`); user-editable `user_metadata` is never used. The API re-checks this table **on every request**.
 
-저장소 루트에서 실행한다. `api/.env`의 `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `POSTGRES_URL_NON_POOLING`이 필요하다.
+Run from the repo root. Requires `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `POSTGRES_URL_NON_POOLING` in `api/.env`.
 
 ```bash
-# 새 관리자 아이디 만들기(비밀번호는 화면에서 입력받는다. 명령줄 인자로 받지 않는다)
-.venv/Scripts/python scripts/grant_admin.py <아이디> --create
+# Create a new admin username (password is prompted; never passed as a CLI argument)
+.venv/Scripts/python scripts/grant_admin.py <username> --create
 
-# 이미 가입한 회원에게 관리자 권한 주기
-.venv/Scripts/python scripts/grant_admin.py <아이디>
+# Grant admin to an existing member
+.venv/Scripts/python scripts/grant_admin.py <username>
 
-# 관리자 권한 회수(계정은 남는다)
-.venv/Scripts/python scripts/grant_admin.py <아이디> --revoke
+# Revoke admin (the account remains)
+.venv/Scripts/python scripts/grant_admin.py <username> --revoke
 ```
 
-- 비밀번호를 화면 입력 대신 환경변수 `BIZDNA_ADMIN_PASSWORD`로 넘길 수도 있다(자동화용).
-- 관리자 비밀번호를 바꾸려면 Supabase 대시보드 Authentication → Users에서 그 계정(`<아이디>@users.bizdna.invalid`)의 비밀번호를 바꾼다. 메일 기반 재설정은 없다(CLAUDE.md 11.3).
-- 관리자 계정은 통계 활용 동의를 받지 않으므로, 관리자 계정으로 한 진단은 수집되지 않는다.
+- Instead of the prompt, the password can come from the env var `BIZDNA_ADMIN_PASSWORD` (automation).
+- To change an admin password: Supabase dashboard Authentication → Users, select the account (`<username>@users.bizdna.invalid`), set a new password; or call the admin API `PUT /auth/v1/admin/users/{id}` with the secret key. There is no mail-based reset (CLAUDE.md 11.3). The `whoami` password was changed on 2026-11-18.
+- Admin accounts have no statistical-use consent, so diagnoses made with an admin account are not collected.
 
-## 3. 화면 구성
+## 3. Screen layout
 
-1. **필터(한 줄)**: 업종, 진단 구분(기본·정밀), 성장단계, DNA 유형, 기간(완료일 기준, 종료일 포함). 바꾸면 집계와 목록이 함께 바뀐다.
-2. **요약**: 진단 회차 수, 경영자 수(가명키 기준), 정밀진단 비율, 종합역량 중앙값, 진행 단계(시작 → 기본 완료 → 정밀 완료, 필터와 무관한 전체 기간 값).
-3. **경영자 성향 4축**: 축별 평균 방향값(−100 ~ +100)을 가운데에서 갈라지는 막대로 보인다. 파랑은 A 성향(G·I·N·P), 주황은 B 성향(S·E·C·O), 가운데 회색 띠는 경계 구간(방향값 −20 ~ +20 = 축 점수 40~60). A 성향 비율·경계 비율·표본 수를 함께 적는다.
-4. **분포 차트**: DNA 유형, 성장단계, 업종, 추천 전략 1~3순위 빈도, 성장장애(P09), 성장목표(P01). 막대에 마우스를 올리면 건수와 비율이 나온다.
-5. **8대 역량 점수 분포**(정밀진단만): 영역별 p25~p75 띠와 중앙값.
-6. **회차 목록**: 25건씩. 완료일, 가명키 앞 8자리, 회차 번호(같은 경영자의 몇 번째 완료 회차인지), 기업 원값(업종·설립연도·매출·인력), DNA 유형과 4축 방향값, 단계, 종합점수·등급, 추천 1~3. 행을 누르면 **상세**(성장단계 6지표, 8영역 점수, 12전략 점수·보류 규칙, 목표·장애, P문항 원값)가 열린다.
-7. **CSV 내보내기**: 현재 필터의 회차 목록 전체(최대 5,000건). 엑셀에서 열리도록 UTF-8 BOM을 붙인다.
+1. **Filters (one row)**: industry, phase (basic/full), growth stage, DNA type, period (by completion date, end date inclusive). Changing them updates aggregates and the list together.
+2. **Summary**: round count, manager count (by pseudonymous key), full-diagnosis ratio, median total competence, funnel (start → basic done → full done; whole period, independent of filters).
+3. **Manager tendency, 4 axes**: mean direction value per axis (−100 to +100) as bars diverging from the center. Blue = A tendency (G, I, N, P), orange = B tendency (S, E, C, O); the gray band in the middle is the boundary zone (direction −20 to +20 = axis score 40–60). A-tendency share, boundary share, and sample size are shown alongside.
+4. **Distribution charts**: DNA type, growth stage, industry, rank 1–3 recommended strategies, growth obstacles (P09), growth goals (P01). Hovering a bar shows count and share.
+5. **8-competence score distribution** (full diagnosis only): p25–p75 band and median per domain.
+6. **Round list**: 25 per page. Completion date, first 8 chars of the pseudonymous key, round number (which completed round of that manager), raw company values (industry, founding year, revenue, headcount), DNA type and 4 direction values, stage, total score and grade, top 3 strategies. Clicking a row opens the **detail** (6 stage indicators, 8 domain scores, 12 strategy scores with deferral rules, goals and obstacles, raw P answers).
+7. **CSV export**: the full round list for the current filters (max 5,000 rows), with a UTF-8 BOM so Excel opens it correctly.
 
-차트 색은 단일 계열이면 포인트 파랑 `#0071e3`, 축 방향은 파랑 `#0071e3` / 주황 `#c2410c`이다. 이 두 색은 색각 이상 검사(CVD ΔE 30 이상)를 통과했다. 값은 색만으로 구분하지 않고 문자(G/S 등)와 숫자를 함께 적는다.
+Chart colors: single series uses accent blue `#0071e3`; axis directions use blue `#0071e3` / orange `#c2410c`. This pair passed the color-vision-deficiency check (CVD ΔE ≥ 30). Values are never encoded by color alone; letters (G/S etc.) and numbers are always shown.
 
 ## 4. API
 
-모두 `Authorization: Bearer <Supabase access token>`이 필요하고, 관리자가 아니면 403이다.
+All endpoints require `Authorization: Bearer <Supabase access token>` and return 403 for non-admins.
 
-| 메서드·경로 | 내용 |
+| Method and path | Content |
 | --- | --- |
-| `GET /api/me` | `is_admin` 포함. 화면이 관리자 메뉴를 보일지 정하는 데만 쓴다 |
-| `GET /api/admin/overview` | 집계(요약·4축·분포·역량 분위·진행 단계·코드 라벨) |
-| `GET /api/admin/facts?offset=&limit=` | 회차 목록(최대 200건씩)과 전체 건수 |
-| `GET /api/admin/facts/{fact_id}` | 회차 상세(역량 8행·전략 12행 포함) |
-| `GET /api/admin/export.csv` | 회차 목록 CSV |
+| `GET /api/me` | Includes `is_admin`. Used only to decide whether to show the admin link |
+| `GET /api/admin/overview` | Aggregates (summary, 4 axes, distributions, competence quantiles, funnel, code labels) |
+| `GET /api/admin/facts?offset=&limit=` | Round list (max 200 per page) and total count |
+| `GET /api/admin/facts/{fact_id}` | Round detail (with 8 domain rows and 12 strategy rows) |
+| `GET /api/admin/export.csv` | Round list as CSV |
 
-공통 필터 쿼리: `industry`, `phase`(basic·full), `stage`(S1~S5), `dna_type`, `model_version`, `since`, `until`(YYYY-MM-DD, until 날짜 포함).
+Common filter query params: `industry`, `phase` (basic, full), `stage` (S1–S5), `dna_type`, `model_version`, `since`, `until` (YYYY-MM-DD, `until` inclusive).
 
-- 집계는 필터에 맞는 회차를 최대 5,000건까지 읽어 API에서 계산한다(`api/bizdna_api/analytics.py`의 `summarize_facts`). 회차가 이보다 많아지면 DB 집계 뷰(CLAUDE.md 12.8)로 옮긴다.
-- 관리자는 개별 회차도 보는 내부 사용자이므로 표본 수 `k` 미만 숨김을 적용하지 않는다. 대신 모든 집계에 `n`을 같이 낸다. 운영기관·기업 화면에 집계를 내보낼 때는 12.8대로 `k` 미만을 숨긴다.
+- Aggregates are computed in the API from up to 5,000 matching rounds (`summarize_facts` in `api/bizdna_api/analytics.py`). Beyond that, move to DB aggregate views (CLAUDE.md 12.8).
+- Admins are internal users who also see individual rounds, so small-sample (`k`) hiding is not applied; every aggregate shows `n` instead. Aggregates exposed to agencies or companies must hide cells below `k` per 12.8.
 
-## 5. 수집이 어떻게 일어나는가 (요약)
+## 5. How collection happens (summary)
 
-- 회원이 **기본진단 또는 정밀진단을 최종저장**하면, 원본 회차 저장과 **같은 트랜잭션**에서 분석 행 1개(같은 회차를 다시 저장하면 덮어씀), 역량 8행, 전략 12행을 쓴다.
-- 새 회차를 만들면 `started`, 기본 완료면 `basic_completed`, 정밀 완료면 `basic_completed`와 `full_completed`를 진행 이벤트로 남긴다. 같은 회차의 같은 이벤트는 한 번만 센다.
-- 통계 활용 동의(`consents.kind = 'analytics'`)가 없으면 아무것도 쓰지 않는다. 2026-11-18 이전 가입자에게는 이 동의가 없으므로 수집되지 않는다.
-- 회원이 회차를 지우거나 탈퇴해도 분석 행은 남는다(2026-11-18 결정). 탈퇴하면 가명키 대응표(`private.subject_map`)만 지워져 누구 것인지 알 수 없게 된다.
-- 기존 회차를 채울 때: `.venv/Scripts/python scripts/backfill_analytics.py` (여러 번 실행해도 결과가 같다).
+- When a member **final-saves a basic or full diagnosis**, the same transaction as the source save writes one fact row (overwritten when the same round is saved again), 8 competence rows, and 12 strategy rows.
+- Creating a round records `started`; a basic completion records `basic_completed`; a full completion records both `basic_completed` and `full_completed`. Each event is counted once per round.
+- Without statistical-use consent (`consents.kind = 'analytics'`) nothing is written. Members who signed up before 2026-11-18 lack this consent and are not collected.
+- Analytics rows remain when a member deletes a round or their account (2026-11-18 decision). Account deletion removes only the key map (`private.subject_map`), so rows become unlinkable.
+- To fill existing rounds: `.venv/Scripts/python scripts/backfill_analytics.py` (idempotent).
 
-## 6. 확인한 것 (2026-11-18)
+## 6. Verified (2026-11-18)
 
-- 단위·API 테스트: `api/tests/test_analytics.py`(방향값 왕복·경계값, 화이트리스트 밖 값 유출 없음, 결측), `api/tests/test_admin.py`(동의 없으면 미수집, 기본→정밀 1행, 회차 번호, 원본 삭제 후 유지, 관리자 아닌 사용자 403, 감사 기록).
-- 실제 DB: 마이그레이션 적용, Data API로 `analytics`·`private` 스키마 접근 불가(406) 확인, 가상 계정 3개·회차 5건으로 수집·화면·상세·백필 멱등을 확인한 뒤 모두 삭제.
-- 운영 중 주의: Supabase 풀러 연결이 트랜잭션 도중 끊기면 DB 쪽 트랜잭션이 잠금을 쥔 채 남아 같은 회원의 다음 저장이 멈춘 적이 있다. 그래서 API의 모든 트랜잭션에 `lock_timeout 5s`, `idle_in_transaction_session_timeout 20s`, `statement_timeout 20s`를 건다(`store.py`의 `_conn`).
+- Unit and API tests: `api/tests/test_analytics.py` (direction round trip and boundaries, no leakage of non-whitelisted values, missing values), `api/tests/test_admin.py` (no consent → not collected, basic → full is one row, round numbers, rows survive source deletion, non-admin 403, audit log).
+- Real DB: migration applied; `analytics` and `private` schemas confirmed unreachable via the Data API (406); collection, screen, detail, and backfill idempotency verified with 3 fictitious accounts / 5 rounds, then all deleted.
+- Production: the user confirmed admin login and `/admin` work online (2026-11-18).
+- Operational caveat: when a Supabase pooler connection drops mid-transaction, the DB-side transaction can stay open holding locks, and that member's next save hangs. So every API transaction sets `lock_timeout 5s`, `idle_in_transaction_session_timeout 20s`, `statement_timeout 20s` (`_conn` in `store.py`).
 
-## 7. 더미 데이터 (화면·수집 확인용)
+## 7. Dummy data (for checking the screen and collection)
 
-`scripts/seed_dummy.py`가 가상 회원(`dummy_` 아이디, 통계 활용 동의 포함)과 진단을 만들어 실제 저장 경로로 넣는다. 실제 기업 데이터가 아니다.
+`scripts/seed_dummy.py` creates fictitious members (`dummy_` usernames, with statistical-use consent) and diagnoses, and saves them through the real save path. This is not real company data.
 
 ```bash
-.venv/Scripts/python scripts/seed_dummy.py --count 100   # 만들기 (--seed로 같은 데이터 재현)
-.venv/Scripts/python scripts/seed_dummy.py --clean       # dummy_ 회원과 그 진단·분석 행 모두 삭제
+.venv/Scripts/python scripts/seed_dummy.py --count 100   # create (--seed reproduces the same data)
+.venv/Scripts/python scripts/seed_dummy.py --clean       # delete all dummy_ members with their diagnoses and analytics rows
 ```
 
-- 경영자 성향은 축마다 한쪽으로 치우치게 만들고, 경계 구간(방향값 −25 ~ +25)에 들면 다시 뽑아 중립 값이 없다. 업종별로 치우치는 방향의 확률이 다르다(예: 서비스업은 G·I·N 쪽, 도소매업은 E 쪽).
-- 약 30%의 회원은 2회차(재진단)를 갖고, 75%는 정밀진단까지 마친다.
-- 2026-11-18 운영 DB에 100건(회원 73명)을 넣었다. 실제 운영 전에 `--clean`으로 지운다.
+- Each axis of the manager tendency is skewed to one side; draws landing in the boundary zone (direction −25 to +25) are redrawn, so there are no neutral values. Lean probabilities differ by industry (e.g. services lean G/I/N, retail leans E).
+- About 30% of members have a 2nd round (re-diagnosis); 75% complete the full diagnosis.
+- 100 rounds (73 members) were loaded into the production DB on 2026-11-18. Remove them with `--clean` before real operation.

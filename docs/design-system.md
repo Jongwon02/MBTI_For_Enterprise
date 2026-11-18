@@ -1,131 +1,132 @@
-# Biz-DNA 웹사이트 디자인 시스템 (비스타컨설팅그룹 홈페이지 차용)
+# Biz-DNA website design system (borrowed from the Vista Consulting Group site)
 
-참고 자료: `홈페이지양식/`의 캡처 PDF 2개(메인, 사업영역), https://vistacg.co.kr/ 의 HTML·CSS(2026-11-16 분석).
+References: the 2 capture PDFs in `홈페이지양식/` (home, business areas) and the HTML/CSS of https://vistacg.co.kr/ (analyzed 2026-11-16).
 
-## 0. 차용 원칙
+## 0. Borrowing principles
 
-**레이아웃, 색 체계, 타이포그래피, 컴포넌트 형태, 모션은 가져오고 콘텐츠와 브랜드 자산은 가져오지 않는다.**
+**Take layout, color system, typography, component shapes, and motion; do not take content or brand assets.**
 
-| 가져온다 | 가져오지 않는다 |
+| Take | Do not take |
 | --- | --- |
-| 풀스크린 섹션 구성, 스크롤 스냅, 우측 점 내비게이션 | VCG 로고, 회사명, 슬로건("We will open the way to happiness.") 등 문구 |
-| 투명 → 유리 알약형으로 바뀌는 헤더 | 사이트에 쓰인 사진(직접 고른 이미지로 교체) |
-| 아이브로 라벨(`— OUR PHILOSOPHY`), 큰 굵은 제목, 파란 강조어 | 수행기관 로고(중기부·지자체 등). 협력 관계가 없는 기관 로고는 쓰지 않는다 |
-| 상단 그라데이션 선이 있는 흰 카드, 검은 실적 섹션, 서브페이지 히어로 + 좌측 사이드바 | 실적 수치(1,214억 등). Biz-DNA는 실측 통계가 없으므로 수치를 지어내지 않는다 |
+| Full-screen sections, scroll snap, right-side dot navigation | VCG logo, company name, slogan ("We will open the way to happiness.") and other copy |
+| Header that turns from transparent into a glass pill | Photos used on the site (replace with our own picks) |
+| Eyebrow labels (`— OUR PHILOSOPHY`), large bold headings, blue emphasis words | Logos of public agencies (MSS, local governments, etc.). Never use logos of organizations we have no partnership with |
+| White cards with a gradient top line, black stats section, sub-page hero + left sidebar | Track-record numbers (e.g. "1,214억"). Biz-DNA has no measured statistics, so never invent numbers |
 
-참고 사이트도 Nuxt + Tailwind + Pretendard 조합이다. 우리 권장 스택(Next.js + Tailwind + Pretendard)으로 같은 스타일을 그대로 구현할 수 있다.
+The reference site is also Nuxt + Tailwind + Pretendard. Our stack (Next.js + Tailwind + Pretendard) can reproduce the same style directly.
 
-## 1. 디자인 토큰
+## 1. Design tokens
 
-### 색상
+### Color
 
-| 토큰 | 값 | 용도 (원 사이트) |
+| Token | Value | Use (on the original site) |
 | --- | --- | --- |
-| `--primary` | `#1d1d1f` | 본문·제목 기본 글자색 |
-| `--blue` | `#0071e3` | 포인트: 아이브로, 강조어, 활성 점, 호버, 숫자 단위 |
-| `--blue-deep` | `#0068d9` / `#0c4f9a` | 호버 진한 파랑, 칩 글자 |
-| `--gray-bg` | `#f5f5f7` | 서브페이지 본문 배경, 사무소 카드 |
-| `--gray-text` | `#86868b` | 보조 문단 |
-| `--black` | `#020202` / `#000` | 히어로·실적 섹션 배경 |
-| `--navy` | `#0a1628` | 서브페이지 히어로 배경 그라데이션 기점 |
-| `--footer` | `#0f0f11` | 푸터 |
-| `--section-light` | `#f9f9f9`, `#f7f7f8` | 철학·수행기관 섹션 배경 |
-| `--chip-bg` / `--chip-text` | `#e8f3ff` / `#0d4e96` | 태그 칩 |
-| `--line-light` | `rgba(0,0,0,.08)` | 구분선 |
-| 슬레이트 계열 | `#0f172a`, `#334155`, `#475569`, `#64748b` | 카드 본문 |
+| `--primary` | `#1d1d1f` | Default body and heading text |
+| `--blue` | `#0071e3` | Accent: eyebrows, emphasis words, active dot, hover, number units |
+| `--blue-deep` | `#0068d9` / `#0c4f9a` | Darker hover blue, chip text |
+| `--gray-bg` | `#f5f5f7` | Sub-page body background, office cards |
+| `--gray-text` | `#86868b` | Secondary paragraphs |
+| `--black` | `#020202` / `#000` | Hero and stats section background |
+| `--navy` | `#0a1628` | Start of the sub-page hero gradient |
+| `--footer` | `#0f0f11` | Footer |
+| `--section-light` | `#f9f9f9`, `#f7f7f8` | Philosophy and partner section backgrounds |
+| `--chip-bg` / `--chip-text` | `#e8f3ff` / `#0d4e96` | Tag chips |
+| `--line-light` | `rgba(0,0,0,.08)` | Dividers |
+| Slate family | `#0f172a`, `#334155`, `#475569`, `#64748b` | Card body text |
 
-> 기존 CLAUDE.md의 "네이비·블루·청록" 방향과 맞는다. 웹은 위 팔레트를 쓰고, PDF 보고서도 같은 파랑(`#0071e3`)과 네이비(`#0a1628`)로 맞춘다. 2.0 보고서의 청록 `#0D838B`은 그래프의 보조 계열색으로만 남긴다.
+> Consistent with the earlier CLAUDE.md direction of "navy, blue, teal". The web uses the palette above, and PDF reports use the same blue (`#0071e3`) and navy (`#0a1628`). 2.0's teal `#0D838B` remains only as a secondary chart color.
 
-### 타이포그래피
+### Typography
 
-- 글꼴: **Pretendard** (`cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css`), 대체 글꼴 `system-ui, -apple-system, Segoe UI, sans-serif`
-- 제목은 굵기 800에 자간을 좁힌다(`letter-spacing: -.04em ~ -.06em`). 한글은 `word-break: keep-all`.
+- Font: **Pretendard** (`cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css`), fallback `system-ui, -apple-system, Segoe UI, sans-serif`
+- Headings are weight 800 with tight tracking (`letter-spacing: -.04em ~ -.06em`). Korean text uses `word-break: keep-all`.
 
-| 요소 | 크기 | 비고 |
+| Element | Size | Notes |
 | --- | --- | --- |
-| 히어로 h1 | `clamp(3rem, 7vw, 5.6rem)` | 행간 1.07 |
-| 섹션 h2 | `clamp(2.4rem, 5vw, 4rem)` ~ `4.6rem` | 행간 1.08~1.18 |
-| 서브페이지 h1 | `clamp(2rem, 4vw, 3rem)` | |
-| 리드 문단 | `clamp(1.05rem, 2vw, 1.45rem)` | `--gray-text`, 행간 1.72 |
-| 아이브로 | 15px / 800 / `letter-spacing .18em` / 대문자 | 앞에 34px×1px 파란 선 |
-| 내비 링크 | 14px / 700 / `.06em` / 대문자 | |
-| 칩 | `.78rem` / 800 | |
+| Hero h1 | `clamp(3rem, 7vw, 5.6rem)` | Line height 1.07 |
+| Section h2 | `clamp(2.4rem, 5vw, 4rem)` – `4.6rem` | Line height 1.08–1.18 |
+| Sub-page h1 | `clamp(2rem, 4vw, 3rem)` | |
+| Lead paragraph | `clamp(1.05rem, 2vw, 1.45rem)` | `--gray-text`, line height 1.72 |
+| Eyebrow | 15px / 800 / `letter-spacing .18em` / uppercase | 34px × 1px blue line in front |
+| Nav links | 14px / 700 / `.06em` / uppercase | |
+| Chips | `.78rem` / 800 | |
 
-### 형태·그림자·모션
+### Shape, shadow, motion
 
-- 컨테이너: `width: min(1280px, 100%)`, 서브페이지 좌우 여백 `8%`
-- 모서리: 카드 30px, 문의 패널 34px, 로고 카드 20px, 작은 카드 14px, 칩·버튼 999px
-- 카드 그림자: `0 18px 40px #10182814`, 호버 시 `0 28px 56px #1018281f`
-- 등장 효과 `.reveal`: `opacity 0 → 1`, `translateY(42px) → 0`, `1.85s cubic-bezier(.2,1,.3,1)`
-- 서브페이지 진입: `pageEnterUp .72s cubic-bezier(.22,1,.36,1)`, 사이드바와 본문을 0.04 / 0.12 / 0.18초 간격으로 차례로 띄운다
-- `prefers-reduced-motion`이면 애니메이션을 끈다
+- Container: `width: min(1280px, 100%)`, sub-page side padding `8%`
+- Radii: cards 30px, contact panel 34px, logo cards 20px, small cards 14px, chips and buttons 999px
+- Card shadow: `0 18px 40px #10182814`, on hover `0 28px 56px #1018281f`
+- Reveal `.reveal`: `opacity 0 → 1`, `translateY(42px) → 0`, `1.85s cubic-bezier(.2,1,.3,1)`
+- Sub-page entry: `pageEnterUp .72s cubic-bezier(.22,1,.36,1)`; sidebar and content rise in sequence at 0.04 / 0.12 / 0.18 s
+- Disable animations under `prefers-reduced-motion`
 
-## 2. 레이아웃 패턴
+## 2. Layout patterns
 
-### 메인: 풀스크린 섹션 스크롤
-- 데스크톱은 `scroll-snap-type: y mandatory`로 섹션마다 `100vh` 스냅한다. **900px 이하에서는 스냅을 해제**하고 일반 스크롤(`section { padding: 96px 20px 34px }`)로 바꾼다.
-- 우측 고정 **점 내비게이션**(11px 원, 활성 점은 파랑으로 1.55배 확대, 호버 시 섹션명 표시). 밝은 섹션에서는 점 색을 어둡게 바꾼다.
+### Home: full-screen section scroll
+- On desktop, `scroll-snap-type: y mandatory` snaps each `100vh` section. **At 900px and below, snapping is off** and normal scrolling applies (`section { padding: 96px 20px 34px }`).
+- Fixed **dot navigation** on the right (11px circles; the active dot is blue and scaled 1.55×; hover shows the section name). Dots turn dark over light sections.
 
-### 헤더
-- 기본: 화면 위에 고정. 투명 배경에 흰 글씨, `padding 32px`. 로고, 대문자 메뉴 5개, 흰 알약 CTA 버튼.
-- 스크롤하면(`.scrolled`) **유리 알약형**으로 바뀐다: `background #ffffffb8`, `backdrop-filter: saturate(180%) blur(18px)`, `border-radius 999px`, 글씨는 어둡게, CTA는 검정.
-- 메뉴 호버: 아래에 2px 밑줄이 왼쪽에서 펼쳐진다. 드롭다운은 하위 메뉴.
-- 모바일: 메뉴와 CTA를 숨기고 햄버거 버튼 → 아코디언 메뉴(`border-radius 18px` 그룹).
+### Header
+- Default: fixed at the top, transparent background, white text, `padding 32px`. Logo, 5 uppercase menu items, white pill CTA.
+- On scroll (`.scrolled`) it becomes a **glass pill**: `background #ffffffb8`, `backdrop-filter: saturate(180%) blur(18px)`, `border-radius 999px`, dark text, black CTA.
+- Menu hover: a 2px underline grows from the left. Dropdowns hold sub-menus.
+- Mobile: menu and CTA hidden, hamburger button → accordion menu (`border-radius 18px` groups).
 
-### 서브페이지
-- **서브 히어로**: 높이 380px, 네이비 그라데이션 + 사진(multiply), 좌하단에 아이브로와 h1.
-- **본문**: `--gray-bg` 배경. 좌측 sticky 사이드바(섹션명 + 메뉴, 활성 항목은 흰 배경에 파란 3px 막대) + 우측 콘텐츠.
-- 콘텐츠 카드: 3열 그리드(`vcg-card-grid--business`), 번호 배지, 제목, 설명, 하단 태그 칩.
+### Sub-pages
+- **Sub hero**: 380px tall, navy gradient + photo (multiply), eyebrow and h1 at bottom left.
+- **Body**: `--gray-bg` background. Sticky left sidebar (section name + menu; active item has white background and a 3px blue bar) + content on the right.
+- Content cards: 3-column grid (`vcg-card-grid--business`), number badge, title, description, tag chips at the bottom.
 
-### 푸터
-- `#0f0f11` 배경, 2열(로고 / 주소·대표·사업자번호·연락처), 아래에 저작권 줄. 우측 하단에 떠 있는 원형 소셜 버튼(52px).
+### Footer
+- `#0f0f11` background, 2 columns (logo / address, CEO, business registration number, contact), copyright line below. Floating round social buttons (52px) at bottom right.
 
-## 3. 섹션별 대응표: 비스타 메인 → Biz-DNA 메인
+## 3. Section mapping: Vista home → Biz-DNA home
 
-| # | 비스타 섹션 | 배경 | Biz-DNA 섹션 | 내용 |
+| # | Vista section | Background | Biz-DNA section | Content |
 | --- | --- | --- | --- | --- |
-| 1 | Hero | 검정 + 사진 | **Hero** | 아이브로 `BIZ-DNA DIAGNOSIS`, 큰 제목(예: "우리 회사의 경영 DNA를 찾아드립니다"), 한 줄 설명, CTA 2개 "무료 기본진단 시작" / "진단 방법 보기", 스크롤 표시 |
-| 2 | Our Philosophy | `#f9f9f9` + 우측 사진 | **Why Biz-DNA** | 점수만 매기는 진단이 아니라 "유형·단계·제약에 맞는 성장경로"를 제시한다는 메시지. PRD 2장의 네 가지 질문(어떤 유형인가 / 어느 단계인가 / 무엇이 장애인가 / 어떤 전략인가)을 파란 강조어로 |
-| 3 | Core Capabilities (5개 카드 회전목마 + 진행 흐름 칩) | 연파랑 그라데이션 | **진단 구성** | 흐름 칩: 기업정보 → 기본진단 → 정밀진단 → 결과·보고서 → 실행·재진단. 카드 5개: ① DNA 유형(16종) ② 성장단계(S1~S5) ③ 8대 경영역량 ④ 맞춤 성장전략(12개) ⑤ 보고서·재진단 |
-| 4 | Proven Impact (검정, 수치 4개) | 검정 | **Model at a glance** | 수치 박스 4개를 **모형 규격**으로: 16 유형 / 8 역량 / 5 단계 / 12 전략 (또는 100 문항). 실측 통계가 생기기 전에는 이용 실적 수치를 쓰지 않는다 |
-| 5 | Partners (로고 무한 스크롤 2줄) | `#f7f7f8` | **16 DNA Types** | 로고 카드 대신 **16개 유형 카드**(4자리 코드 + 유형명)를 같은 무한 스크롤로. 호버 시 기본 성장전략 표시. "유형은 우열이 아닙니다" 안내 |
-| 6 | Office & Contact | 흰색 + 검정 패널 | **Start / Contact** | 좌측: 기업 진단 시작 카드, 기관·컨설턴트 도입 문의 카드. 우측 검정 패널: 문의처, 운영기관 안내 |
-| 7 | Footer | `#0f0f11` | Footer | 서비스명, 운영 주체 정보, "시범모형·가설값" 고지, 개인정보처리방침 링크 |
+| 1 | Hero | Black + photo | **Hero** | Eyebrow `BIZ-DNA DIAGNOSIS`, large heading (e.g. "우리 회사의 경영 DNA를 찾아드립니다"), one-line description, 2 CTAs "무료 기본진단 시작" / "진단 방법 보기", scroll indicator |
+| 2 | Our Philosophy | `#f9f9f9` + photo on the right | **Why Biz-DNA** | Not a score-only diagnosis but a "growth path fitted to type, stage, and constraints". PRD section 2's four questions (what type / which stage / what obstacle / which strategy) as blue emphasis words |
+| 3 | Core Capabilities (carousel of 5 cards + flow chips) | Light blue gradient | **Diagnosis structure** | Flow chips: company info → basic → full → results & report → execution & re-diagnosis. 5 cards: ① DNA type (16) ② growth stage (S1–S5) ③ 8 competences ④ tailored growth strategies (12) ⑤ report & re-diagnosis |
+| 4 | Proven Impact (black, 4 numbers) | Black | **Model at a glance** | 4 stat boxes as the **model spec**: 16 types / 8 competences / 5 stages / 12 strategies (or 100 items). No usage numbers until measured statistics exist |
+| 5 | Partners (2 rows of infinitely scrolling logos) | `#f7f7f8` | **16 DNA Types** | **16 type cards** (4-letter code + type name) instead of logo cards, with the same infinite scroll. Hover shows the basic growth strategy. Notice that types are not ranked |
+| 6 | Office & Contact | White + black panel | **Start / Contact** | Left: start-diagnosis card, institution/consultant adoption inquiry card. Right black panel: contact, agency information |
+| 7 | Footer | `#0f0f11` | Footer | Service name, operator info, "pilot model, hypothetical values" notice, privacy policy link |
 
-## 4. 사이트맵 (안)
+## 4. Sitemap (draft)
 
-상단 메뉴는 비스타처럼 대문자 영문 5개와 CTA로 구성한다.
+Like Vista, the top menu has 5 uppercase English items and a CTA.
 
-| 메뉴 | 하위 페이지 | 레이아웃 |
+| Menu | Sub-pages | Layout |
 | --- | --- | --- |
-| ABOUT | Biz-DNA 소개 · 진단 방법 · 진단모형(4축·8역량·5단계·12전략) | 서브페이지 + 사이드바 |
-| DNA TYPES | 16개 유형 목록 · 유형 상세 | 카드 그리드(4×4), 상세는 서브페이지 |
-| DIAGNOSIS | 기업정보 입력 · 기본진단 · 정밀진단 | 설문 전용 레이아웃(아래 5절) |
-| REPORT | 결과 대시보드 · 보고서 내려받기 · 진단 이력·재진단 | 대시보드(로그인 필요) |
-| NOTICE | 공지사항 · FAQ | 서브페이지 목록 |
-| CTA `진단 시작` | 로그인/가입 → 진단 | |
+| ABOUT | About Biz-DNA · how it works · model (4 axes, 8 competences, 5 stages, 12 strategies) | Sub-page + sidebar |
+| DNA TYPES | 16-type list · type detail | Card grid (4×4); detail as sub-page |
+| DIAGNOSIS | Company info · basic · full | Survey layout (section 5) |
+| REPORT | Result dashboard · report download · history and re-diagnosis | Dashboard (login required) |
+| NOTICE | Notices · FAQ | Sub-page list |
+| CTA `진단 시작` | Login/sign-up → diagnosis | |
 
-로그인한 컨설턴트·운영기관·관리자에게는 헤더에 `CONSOLE` 메뉴를 추가한다(P1 기능).
+Logged-in consultants, agencies, and admins get an extra header menu (P1). Implemented so far: a "관리자" link for admins (`/admin`).
 
-## 5. 핵심 화면에 적용하는 방법
+## 5. Applying it to key screens
 
-### 설문 (FR-03)
-- 서브 히어로를 낮게(240px) 만들어 "기본진단 · DNA 유형 (1/4)"을 보여 준다. 본문은 `--gray-bg`.
-- 좌측 sticky 사이드바를 **진행 단계 내비**로 쓴다(DNA 4축 → 역량 8영역 → 성장계획). 완료한 단계는 파란 막대, 현재 단계는 흰 배경.
-- 문항 카드는 흰색 30px 라운드에 상단 4px 파란 그라데이션 선을 둔다. DNA 문항은 좌우 성향 문구를 양끝에 놓고 가운데에 5점 알약 버튼을 둔다. 역량 문항은 5점 척도 알약 버튼.
-- 하단에 고정 바(이전 / 중간저장 / 다음)와 진행률 막대를 둔다.
+### Survey (FR-03)
+- A low sub hero (240px) showing "기본진단 · DNA 유형 (1/4)". Body on `--gray-bg`.
+- The sticky left sidebar becomes the **step navigation** (DNA 4 axes → 8 competence domains → growth plan). Completed steps get the blue bar; the current step a white background.
+- Item cards: white, 30px radius, 4px blue gradient line on top. DNA items place the two tendency phrases at both ends with 5 pill buttons in between. Competence items use a 5-point pill scale.
+- A fixed bottom bar (previous / interim save / next) and a progress bar.
 
-### 결과 대시보드 (FR-10)
-- 상단은 **검정 섹션**(Impact 스타일): DNA 4자리 코드를 히어로 크기로, 유형명, 성장단계, 종합점수·등급을 stat-box 4개로.
-- 그 아래 `--gray-bg` 영역에 흰 카드: DNA 4축 막대(경계 구간 40~60 음영), 8대 역량 레이더, 성장단계 진행 바(S1~S5), 우선 전략 3개(번호 배지 + 근거 + 실행과제 칩), 보류 전략과 사유.
-- 차트 색: 기본 `#0071e3`, 비교·보조 계열 `#0a1628`·`#8fd4ff`, 강점(≥70)은 청록 `#0D838B`.
+### Result dashboard (FR-10)
+- Top: **black section** (Impact style): DNA 4-letter code at hero size, type name, growth stage, total score and grade as 4 stat boxes.
+- Below, white cards on `--gray-bg`: DNA 4-axis bars (boundary zone 40–60 shaded), 8-competence radar, growth-stage progress bar (S1–S5), 3 priority strategies (number badge + reasons + action chips), deferred strategies with reasons.
+- Chart colors: default `#0071e3`, comparison/secondary series `#0a1628` and `#8fd4ff`, strengths (≥ 70) teal `#0D838B`.
 
-### 반응형 기준
-- 1100px 이하: 사업영역 카드 4열 → 3열 → 2열
-- 900px 이하: 스냅 해제, 헤더 메뉴를 햄버거로, 점 내비 축소
-- 640px 이하: 카드 1열, 좌우 여백 16px, 아이브로 13px
+### Responsive breakpoints
+- ≤ 1100px: business cards 4 → 3 → 2 columns
+- ≤ 900px: snap off, header menu becomes hamburger, dot navigation shrinks
+- ≤ 640px: 1-column cards, 16px side gutters, 13px eyebrows
 
-## 6. 이미지
+## 6. Images
 
-- 비스타는 Unsplash 사진(오피스, 숲 항공샷, 빌딩)에 어두운 그라데이션을 겹친다. Biz-DNA도 같은 처리를 하되 **사진은 새로 고른다**(예: 회의·제조 현장·데이터 이미지). 라이선스를 확인한 뒤 `web/public/images/`에 저장한다. 외부 링크로 핫링크하지 않는다.
-- DNA·나선·네트워크 모티프의 추상 그래픽(SVG)을 히어로 보조 요소로 검토한다.
+- Vista overlays dark gradients on Unsplash photos (office, aerial forest, buildings). Biz-DNA uses the same treatment but **with newly chosen photos** (e.g. meetings, manufacturing floors, data imagery). Check licenses, then store them in `web/public/images/`. Never hotlink.
+- Consider abstract SVG graphics with DNA, helix, or network motifs as hero accents.
+- The logo mark is `web/components/Logo.tsx`; the browser tab icon `web/app/icon.svg` is the same mark on a white rounded tile.

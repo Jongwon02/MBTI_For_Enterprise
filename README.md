@@ -1,55 +1,59 @@
-# Biz-DNA (가칭) 중소기업 경영진단 플랫폼
+# Biz-DNA (working name) — SME management diagnosis platform
 
-요구사항은 `Biz-DNA 중소기업 경영진단 플랫폼 PRD.md`, 작업 규칙은 `CLAUDE.md`를 따른다.
+Requirements: `Biz-DNA 중소기업 경영진단 플랫폼 PRD.md`. Working rules: `CLAUDE.md`.
 
-## 실행 (Windows)
+## Run (Windows)
 
-`run_dev.bat`을 더블클릭한다. 처음 실행할 때는 Python 가상환경과 npm 패키지를 설치하고, 그다음 API 서버(8000)와 웹 서버(3000) 창을 띄운 뒤 http://localhost:3000 을 연다.
+Double-click `run_dev.bat`. On first run it installs the Python venv and npm packages, then opens the API server (8000) and web server (3000) windows and http://localhost:3000.
 
-직접 실행하려면:
+To run manually:
 
 ```bash
-# API (api 폴더에서)
+# API (in the api folder)
 ../.venv/Scripts/python -m uvicorn bizdna_api.main:app --reload --port 8000
-# 웹 (web 폴더에서)
+# Web (in the web folder)
 npm run dev
 ```
 
-필요 프로그램: Python 3.12 이상, Node.js 22 이상.
+Requirements: Python 3.12+, Node.js 22+.
 
-### 회원 기능(Supabase) 로컬 설정
+### Member features (Supabase) locally
 
-회원가입·로그인·마이페이지는 Supabase가 필요하다. 환경변수가 없으면 게스트 진단만 동작한다.
+Sign-up, login, My Page, and the admin screen need Supabase. Without the env vars only guest diagnosis works.
 
 ```bash
 npx vercel@latest env pull web/.env.local --environment development   # NEXT_PUBLIC_SUPABASE_*
 npx vercel@latest env pull api/.env --environment development         # SUPABASE_URL, POSTGRES_URL*
-.venv/Scripts/python scripts/migrate.py                               # supabase/migrations 적용
+.venv/Scripts/python scripts/migrate.py                               # apply supabase/migrations
 ```
 
-## 테스트
+Admin accounts and the `/admin` screen: `docs/admin.md`.
+
+## Tests
 
 ```bash
-.venv/Scripts/python -m pytest api      # 엔진·API (기준 사례 회귀 포함)
+.venv/Scripts/python -m pytest api      # engine and API (including reference-case regression)
 cd web && npx tsc --noEmit && npm run lint && npm run build
 ```
 
-## 구조
+## Layout
 
-| 폴더 | 내용 |
+| Folder | Content |
 | --- | --- |
-| `api/engine/` | 진단엔진(Python, 순수 함수). 설정은 `api/engine/bizdna/config/*.json` |
-| `api/` | FastAPI: 문항 제공, 진단, PDF 보고서. `api/fonts/`는 PDF용 나눔고딕(OFL) |
-| `web/` | Next.js: 메인, 진단 설문, 결과 대시보드 |
-| `docs/` | 문항 원문, 1.0 엔진 명세, 디자인 시스템 |
-| `legacy/` | ChatGPT 시제품 원본(수정 금지) |
-| `prototype/` | 메인 화면 디자인 시안(HTML) |
+| `api/engine/` | Diagnosis engine (Python, pure functions). Config in `api/engine/bizdna/config/*.json` |
+| `api/` | FastAPI: items, diagnosis, PDF reports, member diagnoses, admin API. `api/fonts/` holds NanumGothic (OFL) for PDFs |
+| `web/` | Next.js: home, survey, result dashboard, login/sign-up, My Page, admin |
+| `supabase/migrations/` | DB schema, RLS, triggers, analytics store |
+| `scripts/` | Migration, admin accounts, analytics backfill, dummy data |
+| `docs/` | Item bank, 1.0 engine spec, design system, admin guide |
+| `legacy/` | Original ChatGPT prototypes (do not modify) |
+| `prototype/` | Home-page design mockup (HTML) |
 
-## 배포 (Vercel)
+## Deployment (Vercel)
 
-루트 `vercel.json`의 Services 설정으로 `web`(Next.js)과 `api`(FastAPI)를 한 프로젝트(`21111/mbti-for-enterprise`)에 배포한다. `/api/*`는 api 서비스, 나머지는 web 서비스로 간다.
+The Services config in the root `vercel.json` deploys `web` (Next.js) and `api` (FastAPI) to one project (`21111/mbti-for-enterprise`). `/api/*` goes to the api service, everything else to web. Pushing to `main` auto-deploys production (https://mbti-for-enterprise-21111.vercel.app).
 
 ```bash
-npx vercel@latest deploy          # 미리보기
-npx vercel@latest deploy --prod   # 운영
+npx vercel@latest deploy          # preview
+npx vercel@latest deploy --prod   # production
 ```

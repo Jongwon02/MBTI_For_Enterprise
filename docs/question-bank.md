@@ -1,12 +1,12 @@
-# Biz-DNA 진단 문항풀 100문항 (설계안 원문)
+# Biz-DNA item bank: 100 items (verbatim from the design document)
 
-출처: ChatGPT 대화 "Biz-DNA 창업·성장기업 경영진단모형 개발 기본설계(안) v1.0" Ⅳ장. 문구는 원문 그대로 옮겼다. 채점기준표(응답별 1~5점 부여기준·증빙·역채점·업종별 적용조건)는 아직 없다.
+Source: ChatGPT conversation "Biz-DNA 창업·성장기업 경영진단모형 개발 기본설계(안) v1.0", chapter Ⅳ. **Item wording is kept verbatim in Korean** (it is also the on-screen copy). There is no scoring rubric yet (per-answer 1–5 criteria, evidence, reverse scoring, industry conditions).
 
-## A. DNA 유형진단 24문항
+## A. DNA type diagnosis — 24 items
 
-각 문항은 **왼쪽 성향(1점) ↔ 오른쪽 성향(5점)** 상대선택형이다. 현재 24문항 모두 오른쪽이 A 성향(G·I·N·P)이며 역문항이 없다(PRD 13장 불일치 항목 — 일부 좌우 반전 검토 필요).
+Each item is a relative choice **left tendency (1) ↔ right tendency (5)**. All 24 items currently have the A tendency (G, I, N, P) on the right, so there are no reverse items (a PRD section 13 inconsistency — consider flipping some).
 
-| 코드 | 축 | 왼쪽 성향 (1점) ↔ 오른쪽 성향 (5점) |
+| Code | Axis | Left tendency (1) ↔ right tendency (5) |
 | --- | --- | --- |
 | D01 | S↔G | 안정적 수익 확보 ↔ 적극적 매출 확대 |
 | D02 | S↔G | 기존 사업 유지 ↔ 신규 사업 투자 |
@@ -33,14 +33,14 @@
 | D23 | O↔P | 창업자 직접 인력관리 ↔ 관리자·팀장 중심 관리 |
 | D24 | O↔P | 창업자 주도 사업계획 ↔ 조직 참여형 사업계획 |
 
-화면 문항 예시(D1 성장지향): "향후 3년간 우리 기업이 우선적으로 추구할 경영방향은 무엇입니까?" — 왼쪽 "안정적 수익과 재무건전성 확보", 오른쪽 "매출·시장점유율 확대를 위한 적극적 투자". 척도 라벨: 1 안정경영을 매우 중시 / 2 다소 중시 / 3 양쪽을 비슷하게 중시 / 4 성장확장을 다소 중시 / 5 매우 중시.
+Screen item example (D1 growth orientation): "향후 3년간 우리 기업이 우선적으로 추구할 경영방향은 무엇입니까?" — left "안정적 수익과 재무건전성 확보", right "매출·시장점유율 확대를 위한 적극적 투자". Scale labels: 1 안정경영을 매우 중시 / 2 다소 중시 / 3 양쪽을 비슷하게 중시 / 4 성장확장을 다소 중시 / 5 매우 중시.
 
-## B. 8대 경영역량 64문항 (1~5점)
+## B. Eight management competences — 64 items (1–5)
 
-일부 문항은 사업계획서·재무자료·고객데이터·인증서 등 증빙과 연계한다. 설계안은 재무 영역을 D25~D32로 표기했으나 1.0 엔진은 `answers.competence` 안에서 `D01~D08`로 받는다(아래 표는 엔진 키 기준, 괄호는 설계안 코드).
+Some items link to evidence such as business plans, financial statements, customer data, and certificates. The design document numbers the finance domain D25–D32, but the 1.0 engine receives it as `D01–D08` inside `answers.competence` (the table uses engine keys; design codes in parentheses).
 
-### A. 경영전략 및 비즈니스모델 (15%)
-| 코드 | 문항 |
+### A. 경영전략 및 비즈니스모델 — strategy & business model (15%)
+| Code | Item |
 | --- | --- |
 | A01 | 기업의 중장기 비전과 성장목표가 구체적으로 설정되어 있는가? |
 | A02 | 목표고객과 고객에게 제공하는 핵심가치가 명확한가? |
@@ -51,8 +51,8 @@
 | A07 | 시장환경 변화에 따라 사업전략을 조정하고 있는가? |
 | A08 | 성장목표 달성을 위한 우선투자 분야를 설정하고 있는가? |
 
-### B. 시장·고객·마케팅 (15%)
-| 코드 | 문항 |
+### B. 시장·고객·마케팅 — market, customer & marketing (15%)
+| Code | Item |
 | --- | --- |
 | B01 | 목표시장 규모와 성장성을 객관적으로 파악하고 있는가? |
 | B02 | 목표고객의 요구와 구매결정 요인을 파악하고 있는가? |
@@ -63,8 +63,8 @@
 | B07 | 마케팅 비용 대비 고객획득 성과를 분석하고 있는가? |
 | B08 | 신규시장·판로 진출을 위한 실행계획이 마련되어 있는가? |
 
-### C. 제품·서비스·기술 (15%)
-| 코드 | 문항 |
+### C. 제품·서비스·기술 — product, service & technology (15%)
+| Code | Item |
 | --- | --- |
 | C01 | 제품·서비스의 핵심기능과 고객가치가 명확한가? |
 | C02 | 제품·서비스가 실제 고객에게 제공 가능한 수준인가? |
@@ -75,8 +75,8 @@
 | C07 | 지식재산·브랜드 등 핵심자산의 보호·활용체계를 갖추고 있는가? |
 | C08 | 향후 신제품·서비스 고도화 계획이 구체적인가? |
 
-### D. 재무 및 자금관리 (15%)
-| 코드 | 문항 |
+### D. 재무 및 자금관리 — finance & funding (15%)
+| Code | Item |
 | --- | --- |
 | D01 (D25) | 매출·비용·손익을 정기적으로 관리하고 있는가? |
 | D02 (D26) | 제품·서비스별 원가와 수익성을 파악하고 있는가? |
@@ -87,8 +87,8 @@
 | D07 (D31) | 성장계획에 필요한 투자자금 규모와 조달방안이 구체적인가? |
 | D08 (D32) | 매출 감소나 자금부족 상황에 대한 대응계획이 있는가? |
 
-### E. 조직 및 창업팀 (10%)
-| 코드 | 문항 |
+### E. 조직 및 창업팀 — organization & founding team (10%)
+| Code | Item |
 | --- | --- |
 | E01 | 창업자·경영자가 해당 사업의 전문성을 보유하고 있는가? |
 | E02 | 핵심 사업기능을 수행할 인력이나 외부 협력역량이 확보되어 있는가? |
@@ -99,8 +99,8 @@
 | E07 | 조직 내 정보공유와 협업이 원활하게 이루어지는가? |
 | E08 | 창업자에게 집중된 업무를 조직적으로 분산할 수 있는가? |
 
-### F. 생산·운영·품질관리 (10%)
-| 코드 | 문항 |
+### F. 생산·운영·품질관리 — production, operations & quality (10%)
+| Code | Item |
 | --- | --- |
 | F01 | 핵심 제품·서비스의 제공과정이 체계적으로 정립되어 있는가? |
 | F02 | 고객수요 증가에 대응할 수 있는 공급능력을 보유하고 있는가? |
@@ -111,8 +111,8 @@
 | F07 | 운영상 오류·불량·고객불만을 분석하고 개선하는가? |
 | F08 | 사업규모 확대에 필요한 운영표준과 관리체계가 있는가? |
 
-### G. 디지털 및 데이터 활용 (5%)
-| 코드 | 문항 |
+### G. 디지털 및 데이터 활용 — digital & data (5%)
+| Code | Item |
 | --- | --- |
 | G01 | 매출·고객·재고 등 주요 경영정보를 디지털로 관리하는가? |
 | G02 | 경영 의사결정에 객관적인 데이터를 활용하는가? |
@@ -123,8 +123,8 @@
 | G07 | 주요 경영데이터의 보안·백업·접근권한을 관리하는가? |
 | G08 | 디지털전환을 위한 인력·예산·추진계획이 있는가? |
 
-### H. 성장잠재력 및 사업확장 (15%)
-| 코드 | 문항 |
+### H. 성장잠재력 및 사업확장 — growth potential & expansion (15%)
+| Code | Item |
 | --- | --- |
 | H01 | 향후 3년간 구체적인 매출·고용·시장확대 목표가 있는가? |
 | H02 | 목표시장에 지속적인 성장기회가 존재하는가? |
@@ -135,28 +135,28 @@
 | H07 | 향후 성장에 영향을 미칠 핵심 위험요인을 파악하고 있는가? |
 | H08 | 성장목표 달성을 위한 단계별 실행계획이 마련되어 있는가? |
 
-## C. 성장계획 및 실행제약 12문항 (점수 미합산)
+## C. Growth plan and execution constraints — 12 items (not scored)
 
-전략추천의 목표·제약조건으로만 쓴다. 선택지 목록은 설계안에 없다.
+Used only as goals and constraints for strategy recommendation. The design document has no option lists (draft options are in `questions_v1.json`).
 
-| 코드 | 진단항목 | 응답형식 |
+| Code | Item | Response format |
 | --- | --- | --- |
-| P01 | 향후 3년간 가장 중요한 경영목표 | 다중선택·우선순위 |
-| P02 | 향후 3년 목표 매출액 | 금액 |
-| P03 | 향후 3년 목표 고용인원 | 인원 |
-| P04 | 향후 1년간 계획된 투자규모 | 금액 |
-| P05 | 우선 투자희망 분야 | 다중선택 |
-| P06 | 향후 1년간 필요한 외부자금 | 금액 |
-| P07 | 향후 추진할 신규제품·서비스 | 계획단계 선택 |
-| P08 | 신규시장·해외시장 진출계획 | 계획단계 선택 |
-| P09 | 현재 가장 심각한 성장장애 | 최대 3개 선택 |
-| P10 | 성장계획 실행을 위한 핵심 부족자원 | 최대 3개 선택 |
-| P11 | 향후 6개월 내 실행 가능한 개선과제 | 최대 3개 선택 |
-| P12 | 외부 컨설팅·정책지원이 필요한 분야 | 우선순위 선택 |
+| P01 | 향후 3년간 가장 중요한 경영목표 | multi-select, prioritized |
+| P02 | 향후 3년 목표 매출액 | amount |
+| P03 | 향후 3년 목표 고용인원 | headcount |
+| P04 | 향후 1년간 계획된 투자규모 | amount |
+| P05 | 우선 투자희망 분야 | multi-select |
+| P06 | 향후 1년간 필요한 외부자금 | amount |
+| P07 | 향후 추진할 신규제품·서비스 | plan stage (single) |
+| P08 | 신규시장·해외시장 진출계획 | plan stage (single) |
+| P09 | 현재 가장 심각한 성장장애 | up to 3 |
+| P10 | 성장계획 실행을 위한 핵심 부족자원 | up to 3 |
+| P11 | 향후 6개월 내 실행 가능한 개선과제 | up to 3 |
+| P12 | 외부 컨설팅·정책지원이 필요한 분야 | prioritized choice |
 
-## 아직 없는 것
+## Not in the design document (filled with drafts in `questions_v1.json`)
 
-- 성장단계 6개 지표(사업화·고객검증·매출추세·수익/현금·조직운영·시장확장)를 1~5단계로 평가하는 **질문 문구와 단계별 기준**. 1.0 엔진은 이 6개 값을 직접 입력받는다.
-- 위험 플래그 7종(`cash_crisis` 등)을 응답에서 **도출하는 규칙**. 1.0 엔진은 참/거짓 값을 직접 입력받는다.
-- P01 경영목표 선택지와 엔진 목표 코드(`profit`, `market`, `product`, `scale`, `funding`, `stability`)의 대응표.
-- 기본진단에 쓸 문항 부분집합.
+- **Question wording and per-level criteria** for rating the 6 growth-stage indicators (commercialization, customer validation, revenue trend, profit/cash, organization/operations, market expansion) on 1–5. The 1.0 engine takes these 6 values directly.
+- **Rules deriving** the 7 risk flags (`cash_crisis` etc.) from answers. The 1.0 engine takes true/false values directly.
+- Mapping of P01 goal options to engine goal codes (`profit`, `market`, `product`, `scale`, `funding`, `stability`).
+- The item subset used for the basic diagnosis.

@@ -131,6 +131,17 @@ export function AdminApp() {
               {Object.entries(labels?.types ?? {}).map(([k, v]) => <option key={k} value={k}>{k} {v}</option>)}
             </select>
           </label>
+          <label><span>모형 버전</span>
+            <select value={filters.model_version ?? ov?.current_model_version ?? ""}
+              onChange={(e) => setFilter("model_version", e.target.value === ov?.current_model_version ? "" : e.target.value)}>
+              {(ov?.available_versions.length ? ov.available_versions : ov ? [{ key: ov.current_model_version, n: 0 }] : [])
+                .map((v) => (
+                  <option key={v.key} value={v.key}>
+                    {v.key}{v.key === ov?.current_model_version ? " (현재)" : ""} · {v.n.toLocaleString()}건
+                  </option>
+                ))}
+            </select>
+          </label>
           <label><span>시작일</span><input type="date" value={filters.since ?? ""} onChange={(e) => setFilter("since", e.target.value)} /></label>
           <label><span>종료일</span><input type="date" value={filters.until ?? ""} onChange={(e) => setFilter("until", e.target.value)} /></label>
           <div className="admin-filter-actions">
@@ -145,6 +156,12 @@ export function AdminApp() {
         </section>
 
         {error && <p className="warn-box" role="alert">{error}</p>}
+        {ov?.truncated && (
+          <p className="warn-box" role="status">
+            조건에 맞는 회차가 {ov.row_limit.toLocaleString()}건을 넘어 최근 {ov.row_limit.toLocaleString()}건만 집계·목록·CSV에 반영했습니다.
+            기간 필터로 범위를 좁혀 보세요.
+          </p>
+        )}
 
         {ov && (
           <>

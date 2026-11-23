@@ -149,3 +149,73 @@ def test_admin_unknown_fact(env):
     h = auth(ADMIN)
     assert client.get("/api/admin/facts/not-a-uuid", headers=h).status_code == 404
     assert client.get("/api/admin/facts/00000000-0000-0000-0000-000000000000", headers=h).status_code == 404
+
+
+# ---- 모형 버전·행 한도·감사 로그 중복 (2026-11-23) ----------------------------------
+
+def _set_version(store, version):
+    for f in store.facts.values():
+        f["model_version"] = version
+
+
+def test_admin_defaults_to_current_model_version(env):
+    client, store = env
+    complete(client, ALICE, "case_a")
+    _set_version(store, "model-0.9")  # 이전 버전으로 계산된 행
+    complete(client, ALICE, "case_b")
+    h = auth(ADMIN)
+
+    ov = client.get("/api/admin/overview", headers=h).json()
+    assert ov["model_version"] == ov["current_model_version"] == "model-1.0"
+    assert ov["n"] == 1  # 버전을 섞어 집계하지 않는다
+    assert {v["key"]: v["n"] for v in ov["available_versions"]} == {"model-0.9": 1, "model-1.0": 1}
+
+    old = client.get("/api/admin/overview?model_version=model-0.9", headers=h).json()
+    assert old["n"] == 1 and old["model_version"] == "model-0.9"
+    assert client.get("/api/admin/facts", headers=h).json()["total"] == 1
+    csv = client.get("/api/admin/export.csv", headers=h)
+    assert len(csv.text.strip().splitlines()) == 2
+
+
+def test_admin_reports_truncation(env, monkeypatch):
+    from bizdna_api import store as store_mod
+
+    client, _ = env
+    complete(client, ALICE, "case_a")
+    complete(client, ALICE, "case_b")
+    h = auth(ADMIN)
+    assert client.get("/api/admin/overview", headers=h).json()["truncated"] is False
+    monkeypatch.setattr(store_mod, "ADMIN_ROW_LIMIT", 1)
+    ov = client.get("/api/admin/overview", headers=h).json()
+    assert ov["truncated"] is True and ov["n"] == 1 and ov["row_limit"] == 1
+    assert client.get("/api/admin/facts", headers=h).json()["truncated"] is True
+
+
+def test_repeated_views_are_audited_once(env):
+    client, store = env
+    complete(client, ALICE)
+    h = auth(ADMIN)
+    for _ in range(3):  # 자동 갱신처럼 같은 조건으로 반복 조회
+        client.get("/api/admin/overview", headers=h)
+        client.get("/api/admin/facts", headers=h)
+    assert [a["action"] for a in store.audit_logs] == ["admin.overview", "admin.facts"]
+
+    client.get("/api/admin/facts?phase=full", headers=h)  # 조건이 바뀌면 새로 남긴다
+    fid = client.get("/api/admin/facts", headers=h).json()["items"][0]["fact_id"]
+    client.get(f"/api/admin/facts/{fid}", headers=h)
+    client.get(f"/api/admin/facts/{fid}", headers=h)  # 상세·CSV는 매번 남긴다
+    client.get("/api/admin/export.csv", headers=h)
+    client.get("/api/admin/export.csv", headers=h)
+    assert [a["action"] for a in store.audit_logs][2:] == [
+        "admin.facts", "admin.fact", "admin.fact", "admin.export", "admin.export"]
+
+
+def test_audit_dedupe_expires(env):
+    from datetime import timedelta
+
+    client, store = env
+    h = auth(ADMIN)
+    client.get("/api/admin/overview", headers=h)
+    store.audit_logs[0]["at"] -= timedelta(minutes=11)  # 10분이 지나면 다시 남긴다
+    client.get("/api/admin/overview", headers=h)
+    assert len(store.audit_logs) == 2

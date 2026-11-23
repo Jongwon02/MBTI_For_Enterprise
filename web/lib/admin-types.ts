@@ -7,6 +7,7 @@ export type AdminFilters = {
   dna_type?: string;
   since?: string; // YYYY-MM-DD
   until?: string; // YYYY-MM-DD (그날 포함)
+  model_version?: string; // 비우면 서버가 현재 모형 버전으로 거른다
 };
 
 export type Count = { key: string; n: number };
@@ -38,6 +39,11 @@ export type AdminOverview = {
     types: Record<string, string>;
     stages: Record<string, string>;
   };
+  model_version: string; // 이번 집계에 적용된 버전
+  current_model_version: string;
+  available_versions: Count[];
+  truncated: boolean; // row_limit에 걸려 최근 회차만 반영됨
+  row_limit: number;
   generated_at: string;
 };
 
@@ -68,7 +74,7 @@ export type AdminFact = {
   top_strategies: string[] | null;
 };
 
-export type AdminFactPage = { total: number; offset: number; limit: number; items: AdminFact[] };
+export type AdminFactPage = { total: number; offset: number; limit: number; truncated: boolean; items: AdminFact[] };
 
 export type AdminFactDetail = AdminFact & {
   customer_type: string[] | null;

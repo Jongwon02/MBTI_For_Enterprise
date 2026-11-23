@@ -2,7 +2,9 @@
 
 - 모든 요청에서 DB(public.memberships의 role='admin')로 관리자인지 확인한다. user_metadata는 쓰지 않는다.
 - 분석 저장소(analytics.*)의 가명 행만 보여준다. 기업명·아이디·원본 회차 ID는 응답에 없다.
-- 조회·내보내기마다 private.audit_logs에 기록한다(CLAUDE.md 12.9).
+- 조회·내보내기마다 private.audit_logs에 기록한다(CLAUDE.md 12.9). 집계·목록은 같은 조건의 반복 조회(자동 갱신)를
+  10분에 한 번만 남기고, 상세·CSV는 매번 남긴다.
+- 모형 버전을 섞어 집계하지 않도록(12.8) model_version을 주지 않으면 현재 모형 버전으로 거른다.
 """
 from __future__ import annotations
 
@@ -16,8 +18,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 
-from .analytics import summarize_facts
+from .analytics import model_for, summarize_facts
 from .auth import User, current_user
+from . import store as store_mod
 from .store import DiagnosisStore, get_store
 
 router = APIRouter(prefix="/api/admin")
@@ -41,14 +44,18 @@ def require_admin(user: User = Depends(current_user), store: DiagnosisStore = De
 def _filters(industry: str | None = None, phase: str | None = None, stage: str | None = None,
              dna_type: str | None = None, model_version: str | None = None,
              since: date | None = None, until: date | None = None) -> dict[str, Any]:
-    """since·until은 날짜(포함·미포함 아님: until 날짜 하루 전체를 포함한다)."""
+    """since·until은 날짜(포함·미포함 아님: until 날짜 하루 전체를 포함한다). model_version 기본값은 현재 모형."""
     f: dict[str, Any] = {"industry": industry, "phase": phase, "stage": stage, "dna_type": dna_type,
-                         "model_version": model_version}
+                         "model_version": model_version or current_model_version()}
     if since:
         f["since"] = datetime.combine(since, time.min, tzinfo=timezone.utc)
     if until:
         f["until"] = datetime.combine(until + timedelta(days=1), time.min, tzinfo=timezone.utc)
     return {k: v for k, v in f.items() if v}
+
+
+def current_model_version() -> str:
+    return model_for(None)["version"]
 
 
 def _log_filters(filters: dict[str, Any]) -> dict[str, Any]:
@@ -67,8 +74,15 @@ def overview(filters: dict[str, Any] = Depends(_filters), admin: User = Depends(
              store: DiagnosisStore = Depends(get_store)) -> dict[str, Any]:
     facts = store.admin_facts(filters)
     summary = summarize_facts(facts, store.admin_funnel())
-    store.audit(admin.id, "admin.overview", {"filters": _log_filters(filters), "n": summary["n"]})
-    return summary | {"generated_at": datetime.now(timezone.utc).isoformat()}
+    store.audit(admin.id, "admin.overview", {"filters": _log_filters(filters), "n": summary["n"]}, dedupe=True)
+    return summary | {
+        "model_version": filters["model_version"],
+        "current_model_version": current_model_version(),
+        "available_versions": store.admin_model_versions(),
+        "truncated": len(facts) >= store_mod.ADMIN_ROW_LIMIT,
+        "row_limit": store_mod.ADMIN_ROW_LIMIT,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 @router.get("/facts")
@@ -77,8 +91,10 @@ def list_facts(filters: dict[str, Any] = Depends(_filters), offset: int = Query(
                store: DiagnosisStore = Depends(get_store)) -> dict[str, Any]:
     rows = store.admin_facts(filters)
     page = rows[offset:offset + limit]
-    store.audit(admin.id, "admin.facts", {"filters": _log_filters(filters), "offset": offset, "n": len(page)})
-    return {"total": len(rows), "offset": offset, "limit": limit, "items": [_row(r) for r in page]}
+    store.audit(admin.id, "admin.facts", {"filters": _log_filters(filters), "offset": offset, "n": len(page)},
+                dedupe=True)
+    return {"total": len(rows), "offset": offset, "limit": limit,
+            "truncated": len(rows) >= store_mod.ADMIN_ROW_LIMIT, "items": [_row(r) for r in page]}
 
 
 @router.get("/facts/{fact_id}")

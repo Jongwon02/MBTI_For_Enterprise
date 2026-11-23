@@ -1,6 +1,6 @@
 # Admin accounts and manager-data explorer
 
-> Implemented 2026-11-18. The collection design is authoritative in `CLAUDE.md` section 12. This document covers creating admin accounts, using the screen, and implementation details.
+> Implemented 2026-11-18. The collection design is authoritative in `docs/analytics-store.md` (moved from `CLAUDE.md` section 12). This document covers creating admin accounts, using the screen, and implementation details.
 
 ## 1. At a glance
 
@@ -11,7 +11,7 @@
 | Data shown | The analytics store (`analytics.*`): **final-saved rounds** of members who gave statistical-use consent, pseudonymized |
 | Never shown | Company name, representative name, username, contact details, free text, source round ID. They are not stored in the analytics store at all |
 | Live refresh | While open, the screen reloads every 15 seconds (only when the tab is visible). Uncheck "실시간 갱신" to stop; "새로고침" refreshes immediately |
-| Audit | Every aggregate/list/detail view and CSV export is written to `private.audit_logs` (who, when, which filters, how many rows) |
+| Audit | Every aggregate/list/detail view and CSV export is written to `private.audit_logs` (who, when, which filters, how many rows). Repeated aggregate/list views with identical conditions (e.g. the 15 s auto refresh) are logged once per 10 minutes (`AUDIT_DEDUPE_SECONDS`); detail views and CSV exports are logged every time |
 
 ## 2. Creating and revoking admins
 
@@ -42,7 +42,7 @@ Run from the repo root. Requires `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `POSTGRE
 4. **Distribution charts**: DNA type, growth stage, industry, rank 1–3 recommended strategies, growth obstacles (P09), growth goals (P01). Hovering a bar shows count and share.
 5. **8-competence score distribution** (full diagnosis only): p25–p75 band and median per domain.
 6. **Round list**: 25 per page. Completion date, first 8 chars of the pseudonymous key, round number (which completed round of that manager), raw company values (industry, founding year, revenue, headcount), DNA type and 4 direction values, stage, total score and grade, top 3 strategies. Clicking a row opens the **detail** (6 stage indicators, 8 domain scores, 12 strategy scores with deferral rules, goals and obstacles, raw P answers).
-7. **CSV export**: the full round list for the current filters (max 5,000 rows), with a UTF-8 BOM so Excel opens it correctly.
+7. **CSV export**: the full round list for the current filters (max 20,000 rows), with a UTF-8 BOM so Excel opens it correctly.
 
 Chart colors: single series uses accent blue `#0071e3`; axis directions use blue `#0071e3` / orange `#c2410c`. This pair passed the color-vision-deficiency check (CVD ΔE ≥ 30). Values are never encoded by color alone; letters (G/S etc.) and numbers are always shown.
 
@@ -60,7 +60,9 @@ All endpoints require `Authorization: Bearer <Supabase access token>` and return
 
 Common filter query params: `industry`, `phase` (basic, full), `stage` (S1–S5), `dna_type`, `model_version`, `since`, `until` (YYYY-MM-DD, `until` inclusive).
 
-- Aggregates are computed in the API from up to 5,000 matching rounds (`summarize_facts` in `api/bizdna_api/analytics.py`). Beyond that, move to DB aggregate views (CLAUDE.md 12.8).
+- **`model_version` defaults to the current model version** so aggregates never mix versions (CLAUDE.md 12.8). The screen has a model-version selector; `overview` returns `model_version` (applied), `current_model_version`, and `available_versions` (row count per version).
+
+- Aggregates are computed in the API from up to 20,000 matching rounds (`ADMIN_ROW_LIMIT`, `summarize_facts` in `api/bizdna_api/analytics.py`). Expected total volume is about 5,000 rounds (2026-11-23), so moving to DB aggregate views is not planned. If the limit is hit, `overview` and `facts` return `truncated: true` and the screen shows a warning (only the most recent rounds are reflected).
 - Admins are internal users who also see individual rounds, so small-sample (`k`) hiding is not applied; every aggregate shows `n` instead. Aggregates exposed to agencies or companies must hide cells below `k` per 12.8.
 
 ## 5. How collection happens (summary)

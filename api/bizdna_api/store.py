@@ -27,7 +27,11 @@ ADMIN_FILTERS = {"industry": "industry", "phase": "phase", "stage": "stage_code"
                  "model_version": "model_version"}
 # 관리자에게 보내지 않는 컬럼(원본 회차를 다시 만들 때만 쓰는 값, 12.5).
 ADMIN_HIDDEN = {"diagnosis_id"}
-ADMIN_ROW_LIMIT = 5000
+# 집계·목록·CSV가 한 번에 읽는 최대 행 수. 전체 회차는 최대 약 5천 건으로 예상(2026-11-23)이고,
+# 모형 버전을 올려 재계산하면 행이 버전 수만큼 늘어나므로 여유를 둔다. 넘으면 응답에 truncated를 표시한다.
+ADMIN_ROW_LIMIT = 20000
+# 같은 관리자가 같은 조건으로 다시 조회하면(자동 갱신 등) 이 시간 안에는 감사 로그를 한 번만 남긴다.
+AUDIT_DEDUPE_SECONDS = 600
 
 
 def _events_for(created: bool, data: dict[str, Any]) -> list[str]:
@@ -92,7 +96,8 @@ class DiagnosisStore(Protocol):
     def admin_facts(self, filters: dict[str, Any]) -> list[dict[str, Any]]: ...
     def admin_fact(self, fact_id: str) -> dict[str, Any] | None: ...
     def admin_funnel(self) -> list[dict[str, Any]]: ...
-    def audit(self, actor_id: str, action: str, detail: dict[str, Any]) -> None: ...
+    def admin_model_versions(self) -> list[dict[str, Any]]: ...
+    def audit(self, actor_id: str, action: str, detail: dict[str, Any], dedupe: bool = False) -> None: ...
 
 
 def _now() -> datetime:
@@ -189,8 +194,18 @@ class MemoryStore:
     def admin_funnel(self) -> list[dict[str, Any]]:
         return [{"event": e["event"]} for e in self.events]
 
-    def audit(self, actor_id: str, action: str, detail: dict[str, Any]) -> None:
-        self.audit_logs.append({"actor_id": actor_id, "action": action, "detail": detail, "at": _now()})
+    def admin_model_versions(self) -> list[dict[str, Any]]:
+        counts: dict[str, int] = {}
+        for f in self.facts.values():
+            counts[f["model_version"]] = counts.get(f["model_version"], 0) + 1
+        return [{"key": k, "n": n} for k, n in sorted(counts.items())]
+
+    def audit(self, actor_id: str, action: str, detail: dict[str, Any], dedupe: bool = False) -> None:
+        now = _now()
+        if dedupe and any(a["actor_id"] == actor_id and a["action"] == action and a["detail"] == detail
+                          and (now - a["at"]).total_seconds() < AUDIT_DEDUPE_SECONDS for a in self.audit_logs):
+            return
+        self.audit_logs.append({"actor_id": actor_id, "action": action, "detail": detail, "at": now})
 
 
 def _clean_url(url: str) -> str:
@@ -395,12 +410,26 @@ class PostgresStore:
         with self._conn() as c:
             return [dict(r) for r in c.execute("select event from analytics.funnel_events").fetchall()]
 
-    def audit(self, actor_id: str, action: str, detail: dict[str, Any]) -> None:
+    def admin_model_versions(self) -> list[dict[str, Any]]:
+        with self._conn() as c:
+            return [{"key": r["model_version"], "n": r["n"]} for r in c.execute(
+                "select model_version, count(*)::int as n from analytics.diagnosis_facts"
+                " group by model_version order by model_version").fetchall()]
+
+    def audit(self, actor_id: str, action: str, detail: dict[str, Any], dedupe: bool = False) -> None:
         from psycopg.types.json import Jsonb
 
         with self._conn() as c:
-            c.execute("insert into private.audit_logs (actor_id, action, detail) values (%s, %s, %s)",
-                      (actor_id, action, Jsonb(detail)))
+            if not dedupe:
+                c.execute("insert into private.audit_logs (actor_id, action, detail) values (%s, %s, %s)",
+                          (actor_id, action, Jsonb(detail)))
+                return
+            # 같은 관리자·동작·조건(detail)이 최근 AUDIT_DEDUPE_SECONDS 안에 있으면 남기지 않는다.
+            c.execute("insert into private.audit_logs (actor_id, action, detail)"
+                      " select %(a)s, %(act)s, %(d)s where not exists (select 1 from private.audit_logs"
+                      "  where actor_id = %(a)s and action = %(act)s and detail = %(d)s"
+                      "    and at > now() - make_interval(secs => %(s)s))",
+                      {"a": actor_id, "act": action, "d": Jsonb(detail), "s": AUDIT_DEDUPE_SECONDS})
 
 
 _store: DiagnosisStore | None = None

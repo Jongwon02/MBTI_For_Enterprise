@@ -29,7 +29,8 @@
 | API | 완료(게스트만). `api/sosang_api/` `main.py`(`/api/sosang/health·questions·diagnose·report`), `report.py`(기본형 PDF, 나눔고딕 동봉 `api/fonts/`). 테스트 `api/tests/test_api.py` |
 | 웹 | 완료(게스트만). `web/`(Next.js 16, `basePath: "/sosang"`, 메인 색 `--accent` `#17733b`). 홈, `/diagnosis`(단계별·자동저장·예시 점포), `/diagnosis/result`. 중소경영 `web/`의 CSS·컴포넌트를 복사해 고쳤다(`app/styles/sosang.css`만 새 파일) |
 | 초안(사용자 확인 필요) | 30·60·90일 실행계획 문구(`model_v1.json` `action_plans`, `draft: true`), 업종분류(`industries_v1.json`, `draft: true`), 파생 색(hover·deep·soft·chip·navy) |
-| 없음 | 회원가입·로그인·마이페이지·서버 저장(3.4 계정 분리 먼저), 관리자, `vercel.json` 등록(운영 배포 영향, 사용자 확인 필요), 12전략 매트릭스, AI 보고서 |
+| 통합 진입(2026-11-24) | 루트 `vercel.json`에 `sosang-web`·`sosang-api` 서비스 등록(`/api/sosang/*`, `/sosang`, `/sosang/*`를 중소경영 규칙보다 앞에). 사이트 첫 화면(`/`, 중소경영 `web/app/page.tsx`)이 두 진단 선택 화면이 되었고 중소경영 홈은 `/sme`로 옮겼다. 로컬에서는 중소경영 웹(3000)이 `/sosang`·`/api/sosang`을 3001·8001로 넘긴다 |
+| 없음 | 회원가입·로그인·마이페이지·서버 저장(3.4 계정 분리 먼저), 관리자, 12전략 매트릭스, AI 보고서 |
 
 - 실행: `run_dev.bat`(API 8001 + 웹 3001, 전용 `.venv`). 브라우저 주소 `http://localhost:3001/sosang`. 테스트: `.venv/Scripts/python -m pytest api/engine/tests api/tests`(sosang 폴더에서), `web`에서 `npx next typegen && npx tsc --noEmit && npm run lint && npm run build`.
 - PDF 글꼴(나눔고딕)에는 `−`(U+2212) 글자가 없어 빈칸으로 나온다. 보고서 문구에는 `-`를 쓴다.
@@ -436,7 +437,7 @@ Supabase 프로젝트 하나에는 계정 풀(`auth.users`)이 하나뿐이다. 
 - [x] 회원 계정 → 중소경영과 **분리** (2026-11-23, 3.4)
 - [x] 서버 DB·배포 프로젝트 → 중소경영과 **같이 사용** (Supabase `MBTI`, Vercel `mbti-for-enterprise`) (2026-11-23, 3.1)
 - [x] 개발 위치 → 중소경영 저장소의 `sosang/` 폴더(B안, 2026-11-23, 3.1)
-- [ ] 소상공인 경로 접두어(제안 `/sosang`), 홈(`/`)을 두 진단의 선택 화면으로 바꿀 시점(3.3)
+- [x] 소상공인 경로 접두어 → `/sosang`, 홈(`/`)은 두 진단의 선택 화면, 중소경영 홈은 `/sme` (2026-11-24, 3.3)
 - [ ] 서비스명 (Biz-DNA 소상공인은 가칭 — 코드에서는 설정값으로)
 - [x] 기술 스택 → 중소경영과 동일, PDF는 ReportLab (2026-11-23, 3.2)
 - [x] 디자인 → 중소경영 디자인 시스템 그대로, 메인 색 `#17733b` (2026-11-23, 7장). 파생 색(hover·칩·짙은 초록)은 초안

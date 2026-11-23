@@ -77,7 +77,7 @@ Browser ──(login, session)──▶ Supabase Auth
 ## 11.5 Vercel deployment
 
 - **Layout**: a Vercel Services config at the repo root deploys `web` (Next.js) and `api` (FastAPI) as one project. Both services always deploy and roll back together.
-  - Public routing: `/api/(.*)` → api service, everything else `/(.*)` → web service. Next.js has no API routes of its own, so the api owns all of `/api`. The api receives the original path (`/api/...`); FastAPI routes already start with `/api`, so no rewriting is needed.
+  - Public routing (2026-11-24, with the small-merchant product): `/api/sosang/(.*)` → sosang-api, `/api/(.*)` → api, `/sosang` and `/sosang/(.*)` → sosang-web (Next.js with `basePath: "/sosang"`), everything else `/(.*)` → web. Rules are evaluated in order, so the sosang rules stay before the SME catch-alls. Before 2026-11-24 it was only `/api/(.*)` → api service, everything else `/(.*)` → web service. Next.js has no API routes of its own, so the api owns all of `/api`. The api receives the original path (`/api/...`); FastAPI routes already start with `/api`, so no rewriting is needed.
   - Web and API share a domain, so production needs no CORS. The `/api` rewrites in `next.config.ts` and `BIZDNA_API_URL` remain for local development only.
   - The config is `vercel.json` `services` (or the recommended `vercel.ts` with `@vercel/config`). Check the latest docs before editing.
 - **Deployment status (2026-11-16)**: production URL **https://mbti-for-enterprise-21111.vercel.app** (public). Vercel project `21111/mbti-for-enterprise` (framework preset `services`, Root Directory = repo root); pushing to GitHub `main` auto-deploys production. Deployment protection is `prod_deployment_urls_and_all_previews` ((Legacy) Standard Protection): only the latest production URL is public; previews and per-deployment URLs are visible to Vercel team members only. After connecting a custom domain, switching to Standard Protection is fine. Config is the root `vercel.json`. The 3 pre-deployment problems were solved as follows:
@@ -90,7 +90,7 @@ Browser ──(login, session)──▶ Supabase Auth
 - **Env vars**: register per Production / Preview / Development in the Vercel dashboard. Supabase integration vars are automatic; also register `BIZDNA_ENV=production`, font paths, and (later) AI keys. Connect a separate Supabase project or branch to Preview so previews never touch the production DB.
 - **Limits**: function request/response bodies max 4.5 MB (current PDF ~0.15 MB). Default function timeout 300 s.
 - **Preview protection**: preview deployments are visible to team members only via Vercel Deployment Protection.
-- **Local development**: `run_dev.bat`, or `vercel dev` to run both services once Services is set up.
+- **Local development**: `run_dev.bat`; run `sosang/run_dev.bat` too to reach `/sosang` and `/api/sosang` through port 3000 (dev-only rewrites in `web/next.config.ts`, `SOSANG_WEB_URL`/`SOSANG_API_URL`), or `vercel dev` to run both services once Services is set up.
 
 ## 11.6 Implementation order (recommended)
 

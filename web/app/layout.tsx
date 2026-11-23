@@ -5,6 +5,7 @@ import "./styles/survey.css";
 import "./styles/result.css";
 import "./styles/account.css";
 import "./styles/admin.css";
+import "./styles/choose.css";
 
 export const metadata: Metadata = {
   title: "Biz-DNA | 중소기업 경영진단",

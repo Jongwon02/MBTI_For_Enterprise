@@ -33,6 +33,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // 정적 파일과 API(FastAPI로 넘어감)는 건너뛴다.
-  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
+  // 정적 파일, API(FastAPI로 넘어감), 소상공인 앱(/sosang, 로컬 rewrite)은 건너뛴다.
+  matcher: ["/((?!api/|sosang|_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

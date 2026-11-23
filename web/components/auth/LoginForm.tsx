@@ -60,7 +60,7 @@ export function LoginForm() {
       </form>
       <div className="auth-links">
         <span>아직 회원이 아니신가요? <button type="button" className="text-btn" onClick={toSignup}>회원가입</button></span>
-        <Link className="text-btn" href="/">처음으로</Link>
+        <Link className="text-btn" href="/sme">처음으로</Link>
       </div>
       <div className="auth-divider"><span>또는</span></div>
       <button className="btn btn-line" type="button" onClick={guest}>게스트로 진단하기</button>

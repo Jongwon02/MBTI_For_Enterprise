@@ -22,6 +22,7 @@ Instructions for Claude Code working in this repository. The source of detailed 
 | --- | --- |
 | Done | FR-02 company info, FR-03 web survey (basic/full split, interim save), FR-04 completeness check and missing-value handling, FR-05–09 engine, FR-10 result dashboard, FR-11 basic PDF, FR-13 full PDF (~10 pages; target 15–20 not met) |
 | Done (2026-11-17/18) | FR-01 **username + password** sign-up/login/logout (Supabase Auth, no email verification), guest diagnosis, My Page (resume drafts, view saved results, delete), FR-12 server storage of member diagnosis rounds (own rounds only) |
+| Done (2026-11-24) | Site entry: `/` is a chooser between the SME diagnosis (home moved to `/sme`) and the small-merchant diagnosis (`/sosang`, separate app). Root `vercel.json` registers `sosang-web` and `sosang-api` services |
 | Done (2026-11-18) | Manager-tendency data collection (section 12: `analytics`/`private` schemas, collected in the same transaction as the final save, backfill), admin accounts (`memberships` role admin) and admin screen `/admin` (aggregates, round list, detail, CSV, 15 s auto refresh, audit log). Usage in `docs/admin.md`. Browser tab icon is the Biz-DNA mark (`web/app/icon.svg`) |
 | Missing | Consultant and agency roles (only admin exists), `companies` table, password reset, account deletion, social login, industry-specific item branching, everything from FR-14 on, AI narrative (FR-20) |
 | Draft (needs user confirmation) | Stage-level wording of the 6 growth-stage items, P01–P12 options, P01→goals and P09→flags mappings (`draft: true` in `questions_v1.json`). The scope of the basic diagnosis (= DNA + stage + P01/P09) is also provisional |
@@ -29,7 +30,7 @@ Instructions for Claude Code working in this repository. The source of detailed 
 - Run: `run_dev.bat` (API 8000 + web 3000). Tests: `.venv/Scripts/python -m pytest api`; in `web`: `npx tsc --noEmit && npm run lint && npm run build`. Details in `README.md`.
 - Reference docs: `docs/question-bank.md` (the 100 items), `docs/engine-v1-reference.md` (1.0 calculation rules), `docs/design-system.md` (design), `docs/admin.md` (admin), `docs/infra.md` (section 11 full text), `docs/analytics-store.md` (section 12 full text). Source: ChatGPT shared conversation (https://chatgpt.com/share/6af7f207-27bc-83ee-a43b-b5e628d312d2).
 - `legacy/`: original 1.0/2.0 prototypes, verified to run (`legacy/README.md`). Do not modify. Engine regression tests compare against these down to strategy scores.
-- `prototype/home.html`: approved home-page mockup. The real home is `web/app/page.tsx`.
+- `prototype/home.html`: approved home-page mockup. The real SME home is `web/app/sme/page.tsx`; `/` (`web/app/page.tsx`) is the diagnosis chooser.
 - v3–v8 and the `al/` folder from later in that conversation are **for small merchants**. Do not use them in this product; the small-merchant product lives in `sosang/` (section 13).
 
 ## 3. Tech stack
@@ -60,7 +61,7 @@ api/bizdna_api/     main.py (/api/questions, /api/diagnose, /api/completeness, /
 api/tests/          test_api.py, test_diagnoses.py (tokens, permissions), test_signup.py, test_analytics.py, test_admin.py
 supabase/migrations/ schema, RLS, sign-up trigger, analytics store SQL
 scripts/            migrate.py (apply migrations), grant_admin.py (admin accounts), backfill_analytics.py (analytics backfill), seed_dummy.py (create/delete dummy diagnoses)
-web/app/            page.tsx (home), diagnosis/ (survey, result), login/, signup/, mypage/, admin/, icon.svg, styles/*.css
+web/app/            page.tsx (chooser: SME vs small merchant), sme/ (SME home), diagnosis/ (survey, result), login/, signup/, mypage/, admin/, icon.svg, styles/*.css
 web/proxy.ts        Supabase session refresh; redirects anonymous /mypage and /admin to /login
 web/components/     SiteHeader (top-right admin/login/My Page), SiteFooter, Logo, home/, auth/ (LoginForm, SignupForm),
                     survey/ (DiagnosisEntry: login/sign-up/guest choice, SurveyApp, fields), result/, mypage/, admin/ (AdminApp, charts, FactDetail)

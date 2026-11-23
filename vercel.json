@@ -9,10 +9,22 @@
       "root": "api",
       "framework": "fastapi",
       "entrypoint": "bizdna_api.main:app"
+    },
+    "sosang-web": {
+      "root": "sosang/web",
+      "framework": "nextjs"
+    },
+    "sosang-api": {
+      "root": "sosang/api",
+      "framework": "fastapi",
+      "entrypoint": "sosang_api.main:app"
     }
   },
   "rewrites": [
+    { "source": "/api/sosang/(.*)", "destination": { "service": "sosang-api" } },
     { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/sosang", "destination": { "service": "sosang-web" } },
+    { "source": "/sosang/(.*)", "destination": { "service": "sosang-web" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }

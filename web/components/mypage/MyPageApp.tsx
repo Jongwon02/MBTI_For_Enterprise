@@ -111,7 +111,7 @@ export function MyPageApp() {
   const logout = async () => {
     clearMemberDraft();
     await signOut();
-    router.replace("/");
+    router.replace("/sme");
     router.refresh();
   };
 

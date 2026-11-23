@@ -7,11 +7,11 @@ import { useIsAdmin } from "@/lib/useIsAdmin";
 import { LogoMark } from "./Logo";
 
 const NAV = [
-  { href: "/#why", label: "About", sub: "소개·진단 방법" },
-  { href: "/#types", label: "DNA Types", sub: "16개 유형" },
+  { href: "/sme#why", label: "About", sub: "소개·진단 방법" },
+  { href: "/sme#types", label: "DNA Types", sub: "16개 유형" },
   { href: "/diagnosis", label: "Diagnosis", sub: "진단하기" },
   { href: "/diagnosis/result", label: "Report", sub: "결과·보고서" },
-  { href: "/#start", label: "Notice", sub: "공지·문의" },
+  { href: "/sme#start", label: "Notice", sub: "공지·문의" },
 ];
 
 export function SiteHeader({ active }: { active?: string }) {
@@ -34,7 +34,7 @@ export function SiteHeader({ active }: { active?: string }) {
   return (
     <header className={`site-header${scrolled ? " scrolled" : ""}`}>
       <div className="header-shell">
-        <Link className="logo" href="/" aria-label="Biz-DNA 처음으로">
+        <Link className="logo" href="/sme" aria-label="Biz-DNA 처음으로">
           <LogoMark />
           <span>Biz-DNA <small>가칭</small></span>
         </Link>

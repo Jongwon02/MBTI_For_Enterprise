@@ -1,0 +1,51 @@
+{
+  "version": "sosang-industries-1.0",
+  "draft": true,
+  "note": "Biz-DNA 자체 분류 가설안(sosang/CLAUDE.md 13장). KSIC와 일대일 대응하지 않는다. sector_group은 엔진 v1(v4 재현)의 업종 4종에 임시로 대응시킨 값이며 확정 전이다(9장).",
+  "majors": [
+    {"code": "FOOD", "name": "음식·음료업", "sector_group": "food", "examples": "한식, 중식, 일식, 카페, 제과"},
+    {"code": "RETAIL", "name": "소매업", "sector_group": "retail", "examples": "편의점, 의류, 화장품, 식료품"},
+    {"code": "WHOLESALE", "name": "도매·유통업", "sector_group": "retail", "examples": "식자재도매, 상품도매, 유통"},
+    {"code": "LIFE", "name": "생활·개인서비스업", "sector_group": "life", "examples": "미용, 세탁, 수리, 반려동물"},
+    {"code": "LEISURE", "name": "숙박·여가·문화업", "sector_group": "other", "examples": "숙박, 노래연습장, 체육시설"},
+    {"code": "EDU", "name": "교육·전문서비스업", "sector_group": "other", "examples": "학원, 교습소, 디자인, 전문서비스"},
+    {"code": "MAKE", "name": "제조·가공업", "sector_group": "other", "examples": "식품제조, 인쇄, 의류제조, 공방"}
+  ],
+  "models": [
+    {"code": "M01", "major": "FOOD", "name": "일반음식점형", "subs": ["한식", "중식", "일식", "양식"]},
+    {"code": "M02", "major": "FOOD", "name": "간편식·분식형", "subs": ["분식", "김밥", "도시락"]},
+    {"code": "M03", "major": "FOOD", "name": "카페·음료형", "subs": ["커피숍", "차", "음료"]},
+    {"code": "M04", "major": "FOOD", "name": "제과·디저트형", "subs": ["제과점", "디저트"]},
+    {"code": "M05", "major": "RETAIL", "name": "편의·생활소매형", "subs": ["편의점", "슈퍼마켓"]},
+    {"code": "M06", "major": "RETAIL", "name": "패션·전문소매형", "subs": ["의류", "신발", "화장품"]},
+    {"code": "M07", "major": "RETAIL", "name": "식품·신선소매형", "subs": ["정육", "청과", "반찬"]},
+    {"code": "M08", "major": "RETAIL", "name": "온라인·통신판매형", "subs": ["온라인쇼핑몰"]},
+    {"code": "M09", "major": "WHOLESALE", "name": "상품도매형", "subs": ["생활용품 도매", "산업재 도매"]},
+    {"code": "M10", "major": "WHOLESALE", "name": "식자재·신선유통형", "subs": ["식자재 도매", "농수산물 도매"]},
+    {"code": "M11", "major": "LIFE", "name": "미용·뷰티형", "subs": ["헤어숍", "네일숍", "피부관리"]},
+    {"code": "M12", "major": "LIFE", "name": "수리·유지관리형", "subs": ["자동차 수리", "전자기기 수리"]},
+    {"code": "M13", "major": "LIFE", "name": "생활편의서비스형", "subs": ["세탁", "청소", "기타 생활서비스"]},
+    {"code": "M14", "major": "LEISURE", "name": "숙박형", "subs": ["호텔", "모텔", "펜션"]},
+    {"code": "M15", "major": "LEISURE", "name": "여가·체험형", "subs": ["노래방", "체육시설", "체험시설"]},
+    {"code": "M16", "major": "EDU", "name": "교육·교습형", "subs": ["학원", "교습소"]},
+    {"code": "M17", "major": "EDU", "name": "전문지식서비스형", "subs": ["디자인", "광고", "전문용역"]},
+    {"code": "M18", "major": "MAKE", "name": "식품제조형", "subs": ["식품가공", "제과제조"]},
+    {"code": "M19", "major": "MAKE", "name": "생활제품 제조형", "subs": ["의류", "가구", "생활용품"]},
+    {"code": "M20", "major": "MAKE", "name": "공방·주문제작형", "subs": ["수공예", "맞춤제작"]}
+  ],
+  "sales_modes": [
+    {"code": "offline", "name": "오프라인 매장 중심"},
+    {"code": "online", "name": "온라인/배달 중심"},
+    {"code": "field", "name": "방문/출장 중심"},
+    {"code": "mixed", "name": "혼합형"}
+  ],
+  "attributes": {
+    "customer_type": {"name": "고객유형", "multi": false, "options": {"b2c": "B2C", "b2b": "B2B", "mixed": "혼합"}},
+    "channels": {"name": "판매방식", "multi": true, "options": {"offline": "오프라인", "online": "온라인", "delivery": "배달", "visit": "방문"}},
+    "ownership": {"name": "운영형태", "multi": false, "options": {"independent": "독립점포", "franchise": "프랜차이즈"}},
+    "product_type": {"name": "상품특성", "multi": false, "options": {"own_made": "자체제조", "resale": "매입판매", "service": "서비스"}},
+    "workforce": {"name": "인력구조", "multi": false, "options": {"solo": "1인", "family": "가족", "employees": "고용인력"}},
+    "revenue_type": {"name": "매출구조", "multi": false, "options": {"repeat": "반복구매", "reservation": "예약", "contract": "계약", "one_off": "일회성"}},
+    "field_service": {"name": "방문·현장서비스", "multi": false, "options": {"true": "예", "false": "아니오"}}
+  }
+}

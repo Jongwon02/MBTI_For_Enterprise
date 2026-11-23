@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* 디자인 토큰: 중소경영 docs/design-system.md를 그대로 쓰고 메인 색만 초록으로 바꿨다(sosang/CLAUDE.md 7장).
+   메인 색은 --accent 계열 변수로만 쓴다(통합 대비, 3.3). hover·deep·soft·chip·navy 값은 초안. */
+:root {
+  --ink: #1d1d1f;
+  --accent: #17733b;
+  --accent-rgb: 23, 115, 59;
+  --accent-hover: #12602f;
+  --accent-deep: #0e4d27;
+  --accent-soft: #8fdcaa;
+  --accent-soft-rgb: 143, 220, 170;
+  --gray-bg: #f5f5f7;
+  --gray-text: #86868b;
+  --black: #020202;
+  --navy: #0b2416;
+  --footer: #0f0f11;
+  --section-light: #f9f9f9;
+  --section-mist: #f7f7f8;
+  --white: #ffffff;
+  --chip-bg: #e7f4ec;
+  --slate: #475569;
+  --slate-dark: #334155;
+  --teal: #0d838b;
+  --warn: #b45309;
+  --warn-bg: #fff7ed;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --line: rgba(0, 0, 0, 0.08);
+  --font: "Pretendard", "Noto Sans KR", system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  word-break: keep-all;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+button { font-family: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}

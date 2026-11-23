@@ -1,14 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ApiError, fetchQuestions } from "@/lib/api";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ApiError, fetchQuestions, saveAssessment } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { SAMPLE_SURVEY } from "@/lib/sample";
 import { clearSaved, emptySurvey, save, type SavedSurvey } from "@/lib/storage";
-import type { Likert, Questions, Survey } from "@/lib/types";
+import { AUTH_ENABLED } from "@/lib/supabase/config";
+import type { AssessmentRecord, Likert, Questions, Survey } from "@/lib/types";
 import { ChoiceField, DnaQuestion, IndustryPicker, LikertQuestion, NumberField, TextField } from "./fields";
 
-// 중소경영 components/survey/SurveyApp.tsx를 복사해 고쳤다. 지금은 게스트(브라우저 저장)만 있다.
+// 중소경영 components/survey/SurveyApp.tsx를 복사해 고쳤다.
+// 게스트는 브라우저에만 저장한다. 회원은 브라우저에 저장하면서, 단계를 넘길 때·중간저장 때 서버(sosang.assessments)에
+// draft로 저장하고, 마지막 단계에서 최종저장(엔진 결과·버전 함께)한다(sosang/CLAUDE.md 11장).
 // 단계: 업종·점포 → 매출·비용 → 경영유형 4축 → 경영역량 4쪽(2영역씩) → 업종별 심화(선택) → 실적·참고자료(선택)
 
 type Step =
@@ -76,6 +81,14 @@ function countFor(step: Step, q: Questions, s: Survey, sector: string): [answere
   }
 }
 
+/** 필수 단계의 응답률(%). 마이페이지 표시용. */
+function percentOf(q: Questions, s: Survey): number {
+  const sector = sectorOf(q, s);
+  const [a, t] = buildSteps(q, sector).filter((st) => !("optional" in st && st.optional))
+    .reduce(([x, y], st) => { const [i, j] = countFor(st, q, s, sector); return [x + i, y + j]; }, [0, 0]);
+  return t ? Math.round((a / t) * 100) : 0;
+}
+
 export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
   const router = useRouter();
   const [q, setQ] = useState<Questions | null>(null);
@@ -88,6 +101,13 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
   const [toast, setToast] = useState<string | null>(null);
   const [warn, setWarn] = useState<{ required: string[]; optional: string[] } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const [cloudAt, setCloudAt] = useState<string | null>(initial?.serverId ? initial.savedAt : null);
+  const auth = useAuth();
+  const member = auth.status === "signed-in";
+  // 회원 회차 ID. 저장 요청을 한 줄로 세워(queue) 빠르게 눌러도 회차가 두 개 생기지 않게 한다.
+  const idRef = useRef<string | null>(initial?.serverId ?? null);
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
 
   const fetchAll = useCallback(() => {
     fetchQuestions().then(setQ).catch((e) => setLoadError(e instanceof ApiError ? e.message : "문항을 불러오지 못했습니다."));
@@ -101,15 +121,32 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
   const current = steps[safeStep];
 
   const persist = (next: Partial<{ survey: Survey; step: number; maxStep: number; done: boolean }>) => {
-    const at = save({ survey: next.survey ?? survey, step: next.step ?? safeStep, maxStep: next.maxStep ?? maxStep, done: next.done ?? done });
+    const at = save({ survey: next.survey ?? survey, step: next.step ?? safeStep, maxStep: next.maxStep ?? maxStep, done: next.done ?? done, serverId: idRef.current });
     if (at) setSavedAt(at);
     return at;
+  };
+
+  /** 회원이면 서버에 저장한다(게스트는 아무것도 하지 않고 null). complete면 최종저장. */
+  const syncServer = (st: number, mx: number, complete = false): Promise<AssessmentRecord | null> => {
+    if (!member || !q) return Promise.resolve(null);
+    const snapshot = survey;
+    const run = queue.current.catch(() => undefined).then(async () => {
+      const rec = await saveAssessment(idRef.current, snapshot, { step: st, maxStep: mx, percent: percentOf(q, snapshot) }, complete);
+      idRef.current = rec.id;
+      setCloudAt(rec.updated_at);
+      return rec;
+    });
+    queue.current = run;
+    return run;
+  };
+  const syncQuietly = (st: number, mx: number) => {
+    syncServer(st, mx).catch((e) => showToast(e instanceof ApiError ? `내 계정에 저장하지 못했습니다: ${e.message}` : "내 계정에 저장하지 못했습니다."));
   };
 
   const update = (fn: (s: Survey) => Survey) => {
     setSurvey((prev) => {
       const next = fn(prev);
-      save({ survey: next, step: safeStep, maxStep, done });
+      save({ survey: next, step: safeStep, maxStep, done, serverId: idRef.current });
       return next;
     });
     setSavedAt(new Date().toISOString());
@@ -133,6 +170,7 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
     setStep(i);
     setWarn(null);
     persist({ step: i });
+    syncQuietly(i, maxStep);
     scrollTop();
   };
 
@@ -145,6 +183,20 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
       return;
     }
     if (safeStep === steps.length - 1) {
+      if (member) {
+        // 회원: 서버가 엔진을 실행해 결과와 버전을 함께 저장한 뒤 그 회차의 결과 화면으로 간다.
+        setFinishing(true);
+        syncServer(safeStep, maxStep, true)
+          .then((rec) => {
+            clearSaved(); // 완료한 회차는 서버에 있다. 이 기기의 진행 중 응답은 비운다.
+            router.push(rec ? `/diagnosis/result?id=${rec.id}` : "/mypage");
+          })
+          .catch((e) => {
+            setFinishing(false);
+            showToast(e instanceof ApiError ? `최종저장하지 못했습니다: ${e.message}` : "최종저장하지 못했습니다.");
+          });
+        return;
+      }
       setDone(true);
       persist({ done: true });
       router.push("/diagnosis/result");
@@ -156,11 +208,18 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
     setStep(n);
     setWarn(null);
     persist({ step: n, maxStep: mx });
+    syncQuietly(n, mx);
     scrollTop();
   };
 
   const saveNow = () => {
     const at = persist({});
+    if (member) {
+      syncServer(safeStep, maxStep)
+        .then(() => showToast("내 계정에 저장했습니다. 마이페이지에서 이어서 진단할 수 있습니다."))
+        .catch((e) => showToast(e instanceof ApiError ? `내 계정에 저장하지 못했습니다: ${e.message}` : "내 계정에 저장하지 못했습니다."));
+      return;
+    }
     showToast(at ? "저장했습니다. 이 기기에서 이어서 진단할 수 있습니다." : "이 브라우저에서는 저장할 수 없습니다.");
   };
 
@@ -168,13 +227,15 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
     const mx = steps.length - 1;
     setSurvey(SAMPLE_SURVEY);
     setMaxStep(mx);
-    save({ survey: SAMPLE_SURVEY, step: safeStep, maxStep: mx, done });
+    save({ survey: SAMPLE_SURVEY, step: safeStep, maxStep: mx, done, serverId: idRef.current });
     setSavedAt(new Date().toISOString());
     showToast("가상 점포(동네카페) 예시 응답으로 채웠습니다.");
   };
 
   const reset = () => {
     clearSaved();
+    idRef.current = null; // 회원이면 다음 저장 때 새 회차를 만든다(이전 회차는 마이페이지에 남는다).
+    setCloudAt(null);
     setSurvey(emptySurvey());
     setStep(0); setMaxStep(0); setDone(false); setSavedAt(null); setConfirmReset(false); setWarn(null);
     showToast("응답을 모두 지웠습니다.");
@@ -234,6 +295,11 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
                 })}
               </ol>
             </div>
+            {AUTH_ENABLED && auth.status === "signed-out" && (
+              <p className="side-note">
+                게스트로 진단 중입니다. <Link href="/login?next=%2Fdiagnosis">로그인</Link>하면 지금 응답을 내 계정에 이어서 저장합니다.
+              </p>
+            )}
             <div className="side-tools">
               <button className="text-btn" onClick={fillSample}>예시 점포로 채우기</button>
               {confirmReset ? (
@@ -383,15 +449,19 @@ export function SurveyApp({ initial }: { initial: SavedSurvey | null }) {
             <div className="bar-progress">
               <div className="bar-label">
                 <span>진행률 <b>{pct}%</b></span>
-                <span className="saved">{savedAt ? `이 기기에 자동 저장됨 · ${hhmm(savedAt)}` : "아직 저장 안 됨"}</span>
+                <span className="saved">
+                  {member
+                    ? (cloudAt ? `내 계정에 저장됨 · ${hhmm(cloudAt)}` : "단계를 넘기면 내 계정에 저장됩니다")
+                    : (savedAt ? `이 기기에 자동 저장됨 · ${hhmm(savedAt)}` : "아직 저장 안 됨")}
+                </span>
               </div>
               <div className="bar-track"><i style={{ width: `${pct}%` }} /></div>
             </div>
             <div className="bar-actions">
               <button className="btn btn-line btn-sm" onClick={() => goTo(safeStep - 1)} disabled={safeStep === 0}>이전</button>
               <button className="btn btn-line btn-sm" onClick={saveNow}>중간저장</button>
-              <button className="btn btn-primary btn-sm" onClick={() => next()}>
-                {isLast ? "결과 보기" : "optional" in current && current.optional ? "다음 (건너뛰기 가능)" : "다음"}
+              <button className="btn btn-primary btn-sm" onClick={() => next()} disabled={finishing}>
+                {isLast ? (finishing ? "저장하는 중…" : member ? "최종저장하고 결과 보기" : "결과 보기") : "optional" in current && current.optional ? "다음 (건너뛰기 가능)" : "다음"}
               </button>
             </div>
           </div>

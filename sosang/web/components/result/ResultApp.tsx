@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, downloadReport, runDiagnosis } from "@/lib/api";
-import { loadSaved } from "@/lib/storage";
+import type { SavedSurvey } from "@/lib/storage";
 import type { AxisResult, DiagnosisResult, StrategyItem } from "@/lib/types";
 import { CompetenceRadar } from "./CompetenceRadar";
 
@@ -68,20 +68,23 @@ function StrategyCard({ s }: { s: StrategyItem }) {
   );
 }
 
-export function ResultApp() {
-  // 브라우저에서만 렌더링된다(ResultClient, ssr:false). 이 기기에 저장된 응답으로 결과를 계산한다.
-  const [saved] = useState(() => loadSaved());
-  const [result, setResult] = useState<DiagnosisResult | null>(null);
+/**
+ * 브라우저에서만 렌더링된다(ResultClient, ssr:false).
+ * 게스트: 이 기기에 저장된 응답(saved)으로 결과를 계산한다.
+ * 회원 회차: 서버에 최종저장된 결과(stored)를 그대로 보여 준다(저장 당시 모형 버전의 결과).
+ */
+export function ResultApp({ saved, stored = null }: { saved: SavedSurvey | null; stored?: DiagnosisResult | null }) {
+  const [result, setResult] = useState<DiagnosisResult | null>(stored);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const run = useCallback(() => {
-    if (!saved?.done) return;
+    if (!saved?.done || stored) return;
     runDiagnosis(saved.survey)
       .then(setResult)
       .catch((e) => setError(e instanceof ApiError ? e.message : "진단 중 오류가 발생했습니다."));
-  }, [saved]);
+  }, [saved, stored]);
   useEffect(run, [run]);
   const retry = () => { setError(null); run(); };
 

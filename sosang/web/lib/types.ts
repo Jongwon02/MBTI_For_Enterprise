@@ -98,3 +98,28 @@ export interface DiagnosisResult {
   confidence: { level: string; evidence_count: number; sector_modules: number; note: string };
   notices: { model: string; residual: string };
 }
+
+// ---- 회원 진단 저장 (sosang.assessments) ----
+export interface AssessmentProgress { step: number; maxStep: number; percent: number }
+
+export interface AssessmentSummary {
+  id: string;
+  store_name: string | null;
+  status: "draft" | "completed";
+  progress: Partial<AssessmentProgress> | null;
+  model_version: string | null;
+  questions_version: string | null;
+  industries_version: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  summary: {
+    dna_type: string | null; dna_name: string | null; total: number | null; grade: string | null;
+    sector_name: string | null; risks: number; top_strategy: string | null;
+  } | null;
+}
+
+export interface AssessmentRecord extends AssessmentSummary {
+  survey: Survey;
+  result: DiagnosisResult | null;
+}

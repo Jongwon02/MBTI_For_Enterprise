@@ -16,6 +16,9 @@ from fastapi import Header, HTTPException
 from . import settings
 
 
+SOSANG_SERVICE = "sosang"
+
+
 @dataclass(frozen=True)
 class User:
     id: str
@@ -46,6 +49,9 @@ def verify_token(token: str) -> User:
         raise HTTPException(status_code=401, detail="로그인이 만료되었거나 올바르지 않습니다. 다시 로그인하세요.") from e
     if claims.get("role") != "authenticated":
         raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+    # 같은 Supabase Auth를 쓰는 소상공인 진단 계정(sosang/CLAUDE.md 3.4)은 이 서비스에 들어올 수 없다.
+    if (claims.get("app_metadata") or {}).get("service") == SOSANG_SERVICE:
+        raise HTTPException(status_code=403, detail="소상공인 진단 계정입니다. 중소기업 진단은 별도 회원가입이 필요합니다.")
     return User(id=str(claims["sub"]), email=claims.get("email"))
 
 

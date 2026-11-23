@@ -4,6 +4,7 @@ import "./globals.css";
 import "./styles/site.css";
 import "./styles/survey.css";
 import "./styles/result.css";
+import "./styles/account.css";
 import "./styles/sosang.css";
 
 export const metadata: Metadata = {

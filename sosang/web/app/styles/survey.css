@@ -35,6 +35,8 @@
 .step-link.active .indicator { background: var(--accent); }
 .step-link:disabled { opacity: .45; cursor: not-allowed; }
 .side-tools { display: grid; gap: 6px; justify-items: start; padding-top: 4px; }
+.side-note { margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: var(--chip-bg); color: var(--slate-dark); font-size: .8rem; line-height: 1.55; }
+.side-note a { color: var(--accent-deep); font-weight: 800; text-decoration: underline; }
 .text-btn { border: 0; background: none; padding: 4px 0; color: var(--slate); font-size: .85rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .text-btn:hover { color: var(--accent); }
 .text-btn.danger { color: var(--danger); }

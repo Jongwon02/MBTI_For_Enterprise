@@ -57,6 +57,19 @@ def test_rejects_bad_tokens(client):
     assert client.get("/api/diagnoses", headers={"Authorization": f"Bearer {none_alg}"}).status_code == 401
 
 
+def test_rejects_sosang_accounts(client):
+    """소상공인 진단 계정(app_metadata.service = sosang)은 중소경영 API를 쓸 수 없다(sosang/CLAUDE.md 3.4)."""
+    claims = {"sub": ALICE, "role": "authenticated", "aud": "authenticated", "exp": int(time.time()) + 600,
+              "app_metadata": {"provider": "email", "service": "sosang"}}
+    h = {"Authorization": f"Bearer {jwt.encode(claims, SECRET, algorithm='HS256')}"}
+    assert client.get("/api/me", headers=h).status_code == 403
+    assert client.get("/api/diagnoses", headers=h).status_code == 403
+    # app_metadata가 없거나 다른 값이면 지금처럼 중소경영 회원으로 본다.
+    claims["app_metadata"] = {"provider": "email"}
+    h = {"Authorization": f"Bearer {jwt.encode(claims, SECRET, algorithm='HS256')}"}
+    assert client.get("/api/me", headers=h).status_code == 200
+
+
 def test_me(client):
     assert client.get("/api/me", headers=auth(ALICE)).json()["id"] == ALICE
 

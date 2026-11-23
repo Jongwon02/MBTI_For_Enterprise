@@ -9,6 +9,8 @@ export interface SavedSurvey {
   maxStep: number;
   done: boolean;
   savedAt: string;
+  /** 회원이면 서버에 저장된 회차 ID(sosang.assessments). 게스트는 없다. */
+  serverId?: string | null;
 }
 
 export function emptySurvey(): Survey {
@@ -42,4 +44,9 @@ export function clearSaved(): void {
   } catch {
     // 저장소를 쓸 수 없는 환경이면 무시한다.
   }
+}
+
+/** 로그아웃 때 이 기기의 진행 중 응답을 지운다(소상공인 sosang.* 키만, 중소경영 키는 건드리지 않는다). */
+export function clearMemberDraft(): void {
+  clearSaved();
 }

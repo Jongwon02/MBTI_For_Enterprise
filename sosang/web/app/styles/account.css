@@ -1,0 +1,109 @@
+/* 중소경영 web/app/styles/account.css를 복사해 메인 색만 --accent로 바꿨다(sosang/CLAUDE.md 3.3). */
+/* 회원: 헤더 계정 링크, 진단 시작 선택, 로그인·회원가입, 마이페이지. docs/design-system.md 서브페이지 패턴 */
+
+/* ---------- 헤더 계정 링크 ---------- */
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-account {
+  display: inline-flex; align-items: center; gap: 7px; height: 42px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .3); color: inherit; font-size: 13px; font-weight: 800;
+  transition: border-color .25s ease, color .25s ease, background .25s ease;
+}
+.header-account svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.header-account.placeholder { width: 104px; border-color: transparent; }
+.site-header.scrolled .header-account { border-color: var(--line); }
+.header-account:hover, .header-account.active { color: var(--accent); border-color: var(--accent); }
+@media (max-width: 900px) {
+  .header-account { height: 44px; padding: 0 12px; }
+  .header-account.placeholder { width: 44px; }
+}
+@media (max-width: 420px) {
+  .header-account span { display: none; }
+  .header-account { width: 44px; justify-content: center; padding: 0; }
+}
+
+/* ---------- 진단 시작 선택 ---------- */
+.guest-banner {
+  background: var(--chip-bg); color: var(--accent-deep); text-align: center;
+  padding: 12px 24px; font-size: .9rem; font-weight: 600; line-height: 1.6;
+}
+.guest-banner a { text-decoration: underline; text-underline-offset: 3px; font-weight: 800; }
+.start-gate { display: grid; gap: 12px; }
+.start-gate .step-kicker { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
+.start-gate h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; }
+.start-gate .muted { line-height: 1.7; }
+.gate-options { display: grid; gap: 12px; margin-top: 12px; }
+.gate-option {
+  display: grid; gap: 4px; padding: 20px 22px; border-radius: 20px; text-align: left;
+  border: 1px solid rgba(0, 0, 0, .1); background: var(--white); color: var(--ink);
+  transition: border-color .2s ease, transform .2s var(--ease), box-shadow .2s ease;
+}
+.gate-option b { font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; }
+.gate-option span { color: var(--slate); font-size: .9rem; line-height: 1.6; }
+.gate-option:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 28px -16px rgba(var(--accent-rgb), .45); }
+.gate-option.primary { background: var(--accent); border-color: var(--accent); color: var(--white); }
+.gate-option.primary span { color: rgba(255, 255, 255, .82); }
+
+/* ---------- 로그인·회원가입 ---------- */
+.auth-body { background: var(--gray-bg); padding: 48px 16px 96px; display: flex; justify-content: center; }
+.auth-card { width: min(480px, 100%); display: grid; gap: 14px; animation: pageEnterUp .72s var(--ease) .12s both; }
+.auth-card h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -.04em; }
+.auth-card .muted { line-height: 1.6; }
+.auth-form { display: grid; gap: 14px; margin-top: 6px; }
+.auth-form > label { display: grid; gap: 6px; }
+.auth-form > label > span { font-size: .88rem; font-weight: 700; color: var(--slate-dark); }
+.auth-form > label small { color: var(--gray-text); font-weight: 600; margin-left: 4px; }
+.auth-form input:not([type="checkbox"]) {
+  height: 48px; padding: 0 14px; border-radius: 14px; border: 1px solid rgba(0, 0, 0, .14);
+  font: inherit; font-size: 16px; background: var(--white); color: var(--ink);
+}
+.auth-form input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.auth-form input:disabled { background: var(--gray-bg); }
+.auth-form .btn { width: 100%; margin-top: 4px; }
+.auth-card > .btn { width: 100%; }
+.consent-box { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; gap: 10px; }
+.consent-box legend { padding: 0 6px; font-size: .88rem; font-weight: 800; }
+.consent-box .check { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .88rem; line-height: 1.6; color: var(--slate); }
+.consent-box .check input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.consent-box .check b { color: var(--accent); }
+.auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: .9rem; color: var(--slate); }
+.auth-links a { color: var(--accent); font-weight: 800; }
+.auth-links .text-btn { font-size: .9rem; }
+.auth-divider { display: flex; align-items: center; gap: 12px; color: var(--gray-text); font-size: .82rem; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.auth-note { color: var(--gray-text); font-size: .82rem; line-height: 1.6; }
+
+/* ---------- 마이페이지 ---------- */
+.mypage-body { background: var(--gray-bg); padding: 48px 24px 96px; }
+.mypage-wrap { width: min(1280px, 100%); margin: 0 auto; display: grid; gap: 36px; animation: pageEnterUp .72s var(--ease) .12s both; }
+.profile-panel { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+.profile-panel .step-kicker { color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
+.profile-panel h2 { margin-top: 6px; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; }
+.profile-panel .muted { margin-top: 4px; overflow-wrap: anywhere; }
+.mypage-section { display: grid; gap: 16px; }
+.section-head h3 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; display: flex; align-items: center; gap: 10px; }
+.section-head .count { display: inline-flex; min-width: 28px; height: 26px; padding: 0 9px; align-items: center; justify-content: center; border-radius: 999px; background: var(--ink); color: var(--white); font-size: .8rem; }
+.section-head p { margin-top: 6px; color: var(--slate); line-height: 1.6; }
+.empty-panel { display: grid; gap: 14px; justify-items: start; color: var(--slate); }
+.diag-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 16px; }
+.diag-card {
+  display: grid; gap: 16px; align-content: start; padding: 24px; border-radius: 24px; background: var(--white);
+  border: 1px solid rgba(var(--accent-rgb), .08); box-shadow: 0 18px 40px rgba(16, 24, 40, .06);
+}
+.diag-head { display: grid; gap: 6px; justify-items: start; }
+.diag-head h4 { font-size: 1.2rem; font-weight: 800; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.diag-head small { color: var(--gray-text); font-size: .82rem; }
+.status-badge { display: inline-flex; height: 24px; padding: 0 10px; align-items: center; border-radius: 999px; font-size: .74rem; font-weight: 800; }
+.status-badge.draft { background: var(--warn-bg); color: var(--warn); }
+.status-badge.basic { background: var(--chip-bg); color: var(--accent-deep); }
+.status-badge.full { background: var(--accent); color: var(--white); }
+.diag-progress { display: grid; gap: 8px; font-size: .88rem; color: var(--slate); }
+.diag-summary { display: grid; gap: 8px; margin: 0; padding: 14px 16px; border-radius: 16px; background: var(--gray-bg); }
+.diag-summary div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; font-size: .9rem; }
+.diag-summary dt { color: var(--gray-text); font-weight: 700; }
+.diag-summary dd { margin: 0; color: var(--ink); }
+.diag-summary b { font-weight: 800; letter-spacing: .02em; }
+.diag-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+@media (max-width: 640px) {
+  .mypage-body { padding: 32px 16px 72px; }
+  .diag-card { padding: 20px 18px; }
+}

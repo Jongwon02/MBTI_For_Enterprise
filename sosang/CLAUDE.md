@@ -30,7 +30,8 @@
 | 웹 | 완료(게스트만). `web/`(Next.js 16, `basePath: "/sosang"`, 메인 색 `--accent` `#17733b`). 홈, `/diagnosis`(단계별·자동저장·예시 점포), `/diagnosis/result`. 중소경영 `web/`의 CSS·컴포넌트를 복사해 고쳤다(`app/styles/sosang.css`만 새 파일) |
 | 초안(사용자 확인 필요) | 30·60·90일 실행계획 문구(`model_v1.json` `action_plans`, `draft: true`), 업종분류(`industries_v1.json`, `draft: true`), 파생 색(hover·deep·soft·chip·navy) |
 | 통합 진입(2026-11-24) | 루트 `vercel.json`에 `sosang-web`·`sosang-api` 서비스 등록(`/api/sosang/*`, `/sosang`, `/sosang/*`를 중소경영 규칙보다 앞에). 사이트 첫 화면(`/`, 중소경영 `web/app/page.tsx`)이 두 진단 선택 화면이 되었고 중소경영 홈은 `/sme`로 옮겼다. 로컬에서는 중소경영 웹(3000)이 `/sosang`·`/api/sosang`을 3001·8001로 넘긴다 |
-| 없음 | 회원가입·로그인·마이페이지·서버 저장(3.4 계정 분리 먼저), 관리자, 12전략 매트릭스, AI 보고서 |
+| 회원(2026-11-24) | 아이디+비밀번호 회원가입·로그인·로그아웃, 마이페이지(진행 중 이어하기·완료 결과 보기·삭제), 회원 진단 서버 저장(단계 이동·중간저장 때 draft, 마지막 단계에서 최종저장 = 엔진 결과·버전 함께). DB는 `sosang` 스키마(`profiles`·`consents`·`assessments`, 마이그레이션 `20261124000000_sosang_auth.sql`, 운영 DB 적용 완료). 3.4 계정 분리 모두 구현: 내부 주소 `@users.sosang.invalid`, `app_metadata.service = "sosang"`, 소상공인 API는 서비스 표시 + `sosang.profiles` 행 확인, 중소경영 API는 소상공인 계정 403, 가입 트리거는 주소 도메인으로 나눔, 로그인 쿠키 `sb-sosang-auth-token`. API `auth.py`·`signup.py`·`store.py`, 테스트 `api/tests/test_members.py`. 웹 `/login`·`/signup`·`/mypage`, `lib/auth.ts`·`lib/supabase/` |
+| 없음 | 관리자(`sosang.memberships`), 점포 마스터(`stores`)·재무 기록(`financial_records`) 테이블(지금은 점포·재무 입력이 `assessments.survey`에 들어 있다), 감사 로그, 비밀번호 재설정·탈퇴, 통계 활용 동의·분석 저장소(12장), 12전략 매트릭스, AI 보고서 |
 
 - 실행: `run_dev.bat`(API 8001 + 웹 3001, 전용 `.venv`). 브라우저 주소 `http://localhost:3001/sosang`. 테스트: `.venv/Scripts/python -m pytest api/engine/tests api/tests`(sosang 폴더에서), `web`에서 `npx next typegen && npx tsc --noEmit && npm run lint && npm run build`.
 - PDF 글꼴(나눔고딕)에는 `−`(U+2212) 글자가 없어 빈칸으로 나온다. 보고서 문구에는 `-`를 쓴다.
@@ -102,7 +103,7 @@ Supabase 프로젝트 하나에는 계정 풀(`auth.users`)이 하나뿐이다. 
 | 서비스 표시 | 가입 API(서버, admin API)가 `app_metadata.service = "sosang"`을 넣는다. `user_metadata`는 사용자가 바꿀 수 있으므로 권한 판단에 쓰지 않는다 |
 | API 검사 | 소상공인 API는 JWT를 검증한 뒤 `app_metadata.service == "sosang"`이고 `sosang.profiles`에 행이 있는 사용자만 받는다. 아니면 401/403. 권한 테스트에 "중소경영 계정으로 소상공인 API 호출 → 거부"를 넣는다 |
 | 로그인 쿠키 | `@supabase/ssr` 클라이언트(브라우저·서버·`proxy.ts` 모두)에 `cookieOptions.name`을 따로 준다(예: `sb-sosang-auth-token`). 기본 이름(`sb-<ref>-auth-token`)은 중소경영이 쓰므로 그대로 두면 한쪽 로그인·로그아웃이 다른 쪽에 영향을 준다. 코드 작성 전 설치된 `@supabase/ssr` 문서로 옵션을 다시 확인한다 |
-| 가입 트리거 | 중소경영의 `public.handle_new_user()` 트리거는 **모든** 새 계정에 `public.profiles`·`public.consents` 행을 만든다. 소상공인 가입 전에 이 트리거를 `app_metadata.service`로 나눠, 소상공인 계정은 `sosang.profiles`·`sosang.consents`에만 쓰게 고친다(중소경영 계정 동작은 그대로). 이 수정은 루트 `supabase/migrations/`의 새 마이그레이션으로 하고 사용자 확인 후 적용한다 |
+| 가입 트리거 | 중소경영의 `public.handle_new_user()` 트리거는 **모든** 새 계정에 `public.profiles`·`public.consents` 행을 만든다. 소상공인 가입 전에 이 트리거를 나눠(구현: `app_metadata`는 가입 API가 INSERT 뒤에 넣을 수 있어 확실히 함께 들어오는 **내부 주소 도메인 `@users.sosang.invalid`**로 나눴다, 2026-11-24), 소상공인 계정은 `sosang.profiles`·`sosang.consents`에만 쓰게 고친다(중소경영 계정 동작은 그대로). 이 수정은 루트 `supabase/migrations/`의 새 마이그레이션으로 하고 사용자 확인 후 적용한다 |
 | 중소경영 쪽 차단 | 중소경영 API도 소상공인 계정(`app_metadata.service == "sosang"`)을 거부하도록 고친다(지금은 JWT만 검증하므로 소상공인 계정이 중소경영에 로그인된다). **소상공인 회원가입을 열기 전에** 반드시 끝낸다. 중소경영 코드(루트 `api/`) 수정이므로 사용자 확인 후 진행한다 |
 | 관리자 | 소상공인 관리자는 `sosang.memberships`에서 따로 관리한다. 중소경영 관리자(`whoami`)가 자동으로 소상공인 관리자가 되지 않는다. `grant_admin.py`를 복사해 `sosang` 스키마용으로 고친다 |
 | 브라우저 저장 | 로그아웃 시 지우는 것도 `sosang.` 키만 지운다 |
@@ -477,6 +478,7 @@ Supabase 프로젝트 하나에는 계정 풀(`auth.users`)이 하나뿐이다. 
 - 그 DB는 **중소경영이 실제 운영 중인 DB**다. 소상공인 작업은 `sosang*` 스키마 안에서만 하고, 중소경영 객체를 바꾸는 작업(3.4 가입 트리거)과 마이그레이션 적용·환경변수 변경·운영 배포는 매번 사용자 확인을 받는다.
 - 환경변수는 중소경영 것을 같이 쓴다(`SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `POSTGRES_URL` 등, Production 전용). 소상공인 전용 값이 필요하면 `SOSANG_` 접두어로 추가한다. 로컬에서는 루트 `api/.env`를 `sosang/api/.env`로 복사해 쓴다(커밋 금지, 루트 `.gitignore`의 `.env` 규칙이 적용된다).
 - 미리보기(Preview) 배포에는 Supabase 환경변수가 없어 게스트 진단만 된다(루트 `docs/infra.md` 11.2와 같다).
+- 소상공인 웹은 중소경영과 같은 `NEXT_PUBLIC_SUPABASE_URL`·`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`를, 소상공인 API는 같은 `SUPABASE_URL`·`SUPABASE_SECRET_KEY`·`POSTGRES_URL`(·`SUPABASE_JWT_SECRET`)을 읽는다. 로그인 세션 갱신용 `proxy.ts`는 두지 않았다(브라우저 클라이언트가 토큰을 갱신하고, 마이페이지는 화면에서 로그인 여부를 확인한다).
 - 아래 11.1의 테이블은 모두 `sosang` 스키마에 둔다.
 
 - 브라우저는 Supabase를 **로그인에만** 쓰고, 점포·진단 데이터의 읽기·쓰기는 모두 FastAPI를 거친다. 모든 테이블에 RLS를 켠다.
